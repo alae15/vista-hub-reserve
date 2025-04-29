@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -14,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Heart, Share, MapPin, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns"; // Added import for format function
 
 const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -159,7 +159,7 @@ const PropertyDetail = () => {
                           fill="currentColor"
                           className="w-4 h-4 text-muted-foreground"
                         >
-                          <path d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 00-13.074.003z" />
+                          <path d="M10.75 1.25a.75.75 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 00-13.074.003z" />
                         </svg>
                         <span className="text-sm text-muted-foreground">
                           {property.guests} guests
@@ -172,7 +172,7 @@ const PropertyDetail = () => {
                           fill="currentColor"
                           className="w-4 h-4 text-muted-foreground"
                         >
-                          <path d="M10.75 1.25a.75.75 0 00-1.5 0v3.26l-.22-.22a.75.75 0 00-1.06 1.06l1.5 1.5a.75.75 0 001.06 0l1.5-1.5a.75.75 0 00-1.06-1.06l-.22.22v-3.26zM6.42 4.71a.75.75 0 00-1.064 1.057l.217.22-3.323.75 2.5 11 13 3 2.5-11-3.323-.75.218-.22a.75.75 0 00-1.053-1.061L14.5 8.121l-3.536-3.536a1.5 1.5 0 00-2.121 0L5.307 8.121 3.714 6.53l2.706-2.82zM13.5 10a.5.5 0 11-1 0 .5.5 0 011 0zm-6 0a.5.5 0 11-1 0 .5.5 0 011 0z" />
+                          <path d="M10.75 1.25a.75.75 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 00-13.074.003z" />
                         </svg>
                         <span className="text-sm text-muted-foreground">
                           {property.beds} beds

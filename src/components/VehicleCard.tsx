@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 export interface VehicleProps {
   id: number;
   title: string;
-  type: "car" | "motorcycle";
+  type: string; // Changed from "car" | "motorcycle" to string to match the actual data
   price: number;
   image: string;
   seats?: number;
