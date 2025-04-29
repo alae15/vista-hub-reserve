@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Home, Car, Motorcycle, MapPin } from "lucide-react";
+import { Home, Car, Bike, MapPin } from "lucide-react";
 
 const MapView = () => {
   const [activeTab, setActiveTab] = useState("properties");

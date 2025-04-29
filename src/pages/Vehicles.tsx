@@ -6,7 +6,7 @@ import SearchFilters from "@/components/SearchFilters";
 import VehicleCard from "@/components/VehicleCard";
 import { vehicles } from "@/data/mockData";
 import { Button } from "@/components/ui/button";
-import { Grid3X3, List, Car, Motorcycle } from "lucide-react";
+import { Grid3X3, List, Car, Bike } from "lucide-react";
 
 const Vehicles = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -56,7 +56,7 @@ const Vehicles = () => {
                   onClick={() => setFilter("motorcycle")}
                   className="gap-1"
                 >
-                  <Motorcycle className="h-4 w-4" />
+                  <Bike className="h-4 w-4" />
                   <span>Motorcycles</span>
                 </Button>
               </div>

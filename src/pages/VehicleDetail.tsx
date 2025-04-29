@@ -8,7 +8,7 @@ import { vehicles } from "@/data/mockData";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Heart, Share, Car, Motorcycle } from "lucide-react";
+import { ArrowLeft, Heart, Share, Car, Bike } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 
@@ -153,7 +153,7 @@ const VehicleDetail = () => {
                         {vehicle.type === "car" ? (
                           <Car className="h-6 w-6 text-martil-blue" />
                         ) : (
-                          <Motorcycle className="h-6 w-6 text-martil-blue" />
+                          <Bike className="h-6 w-6 text-martil-blue" />
                         )}
                       </div>
                       <div>

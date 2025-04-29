@@ -12,6 +12,10 @@ export interface VehicleProps {
   seats?: number;
   transmission?: string;
   year: number;
+  description?: string;
+  features?: string[];
+  panoramaImages?: string[];
+  featured?: boolean;
 }
 
 const VehicleCard = ({
