@@ -52,7 +52,7 @@ const SearchFilters = ({ type }: SearchFiltersProps) => {
                     {checkInDate ? format(checkInDate, "PPP") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+                <PopoverContent className="w-auto p-0 z-50">
                   <Calendar
                     mode="single"
                     selected={checkInDate}
@@ -75,7 +75,7 @@ const SearchFilters = ({ type }: SearchFiltersProps) => {
                     {checkOutDate ? format(checkOutDate, "PPP") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+                <PopoverContent className="w-auto p-0 z-50">
                   <Calendar
                     mode="single"
                     selected={checkOutDate}
