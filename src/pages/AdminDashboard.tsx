@@ -7,10 +7,23 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { properties, vehicles, restaurants } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
+import { PropertyForm, PropertyFormData } from "@/components/PropertyForm";
+import { DeleteConfirmation } from "@/components/DeleteConfirmation";
+import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [propertiesList, setPropertiesList] = useState(properties);
+  const [vehiclesList, setVehiclesList] = useState(vehicles);
+  const [restaurantsList, setRestaurantsList] = useState(restaurants);
+  
+  // State for property operations
+  const [isAddPropertyOpen, setIsAddPropertyOpen] = useState(false);
+  const [isEditPropertyOpen, setIsEditPropertyOpen] = useState(false);
+  const [isDeletePropertyOpen, setIsDeletePropertyOpen] = useState(false);
+  const [currentProperty, setCurrentProperty] = useState<PropertyFormData | undefined>(undefined);
   
   const handleLogout = () => {
     toast({
@@ -20,6 +33,46 @@ const AdminDashboard = () => {
     navigate("/admin");
   };
   
+  // Property operations
+  const handleAddProperty = (data: PropertyFormData) => {
+    const newProperty = {
+      ...data,
+      id: propertiesList.length + 1,
+      price: parseInt(data.price),
+    };
+    setPropertiesList([...propertiesList, newProperty]);
+  };
+  
+  const handleEditProperty = (data: PropertyFormData) => {
+    if (!currentProperty) return;
+    
+    const updatedProperties = propertiesList.map(property => 
+      property.id === currentProperty.id ? 
+        { ...property, ...data, price: parseInt(data.price) } : 
+        property
+    );
+    
+    setPropertiesList(updatedProperties);
+  };
+  
+  const handleDeleteProperty = () => {
+    if (!currentProperty) return;
+    
+    const updatedProperties = propertiesList.filter(
+      property => property.id !== currentProperty.id
+    );
+    
+    setPropertiesList(updatedProperties);
+    setIsDeletePropertyOpen(false);
+    
+    toast({
+      title: "Property deleted",
+      description: `Property #${currentProperty.id} has been deleted.`,
+      variant: "destructive",
+    });
+  };
+  
+  // Generic handlers for other types
   const handleAdd = (type: string) => {
     toast({
       title: "Add new item",
@@ -67,9 +120,19 @@ const AdminDashboard = () => {
             <TabsContent value="properties">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-medium">Manage Properties</h2>
-                <Button onClick={() => handleAdd("property")}>
-                  Add New Property
-                </Button>
+                <Dialog open={isAddPropertyOpen} onOpenChange={setIsAddPropertyOpen}>
+                  <DialogTrigger asChild>
+                    <Button>
+                      Add New Property
+                    </Button>
+                  </DialogTrigger>
+                  <PropertyForm
+                    open={isAddPropertyOpen}
+                    onOpenChange={setIsAddPropertyOpen}
+                    onSubmit={handleAddProperty}
+                    title="Add New Property"
+                  />
+                </Dialog>
               </div>
               
               <div className="overflow-x-auto">
@@ -86,7 +149,7 @@ const AdminDashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {properties.map(property => (
+                    {propertiesList.map(property => (
                       <tr key={property.id} className="border-b hover:bg-gray-50">
                         <td className="py-3 px-4">{property.id}</td>
                         <td className="py-3 px-4">
@@ -102,20 +165,63 @@ const AdminDashboard = () => {
                         <td className="py-3 px-4">${property.price}/night</td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex gap-2 justify-end">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleEdit("property", property.id)}
-                            >
-                              Edit
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="destructive"
-                              onClick={() => handleDelete("property", property.id)}
-                            >
-                              Delete
-                            </Button>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => {
+                                    setCurrentProperty({
+                                      id: property.id,
+                                      title: property.title,
+                                      location: property.location,
+                                      type: property.type,
+                                      price: property.price.toString(),
+                                      image: property.image
+                                    });
+                                    setIsEditPropertyOpen(true);
+                                  }}
+                                >
+                                  Edit
+                                </Button>
+                              </DialogTrigger>
+                              <PropertyForm
+                                open={isEditPropertyOpen}
+                                onOpenChange={setIsEditPropertyOpen}
+                                onSubmit={handleEditProperty}
+                                property={currentProperty}
+                                title="Edit Property"
+                              />
+                            </Dialog>
+                            
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button 
+                                  size="sm" 
+                                  variant="destructive"
+                                  onClick={() => {
+                                    setCurrentProperty({
+                                      id: property.id,
+                                      title: property.title,
+                                      location: property.location,
+                                      type: property.type,
+                                      price: property.price.toString(),
+                                      image: property.image
+                                    });
+                                    setIsDeletePropertyOpen(true);
+                                  }}
+                                >
+                                  Delete
+                                </Button>
+                              </AlertDialogTrigger>
+                              <DeleteConfirmation
+                                open={isDeletePropertyOpen}
+                                onOpenChange={setIsDeletePropertyOpen}
+                                onConfirm={handleDeleteProperty}
+                                title="Delete Property"
+                                description={`Are you sure you want to delete "${property.title}"? This action cannot be undone.`}
+                              />
+                            </AlertDialog>
                           </div>
                         </td>
                       </tr>
@@ -147,7 +253,7 @@ const AdminDashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {vehicles.map(vehicle => (
+                    {vehiclesList.map(vehicle => (
                       <tr key={vehicle.id} className="border-b hover:bg-gray-50">
                         <td className="py-3 px-4">{vehicle.id}</td>
                         <td className="py-3 px-4">
@@ -208,7 +314,7 @@ const AdminDashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {restaurants.map(restaurant => (
+                    {restaurantsList.map(restaurant => (
                       <tr key={restaurant.id} className="border-b hover:bg-gray-50">
                         <td className="py-3 px-4">{restaurant.id}</td>
                         <td className="py-3 px-4">
