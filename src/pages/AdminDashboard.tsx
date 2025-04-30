@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -39,8 +38,20 @@ const AdminDashboard = () => {
       ...data,
       id: propertiesList.length + 1,
       price: parseInt(data.price),
+      panoramaImages: [],
+      rating: 0,
+      beds: 0,
+      baths: 0,
+      guests: 0,
+      amenities: [],
+      description: "",
+      featured: false
     };
     setPropertiesList([...propertiesList, newProperty]);
+    toast({
+      title: "Property added",
+      description: "The property has been added successfully.",
+    });
   };
   
   const handleEditProperty = (data: PropertyFormData) => {
@@ -48,11 +59,22 @@ const AdminDashboard = () => {
     
     const updatedProperties = propertiesList.map(property => 
       property.id === currentProperty.id ? 
-        { ...property, ...data, price: parseInt(data.price) } : 
+        { 
+          ...property, 
+          title: data.title,
+          location: data.location,
+          type: data.type,
+          price: parseInt(data.price),
+          image: data.image
+        } : 
         property
     );
     
     setPropertiesList(updatedProperties);
+    toast({
+      title: "Property updated",
+      description: "The property has been updated successfully.",
+    });
   };
   
   const handleDeleteProperty = () => {
