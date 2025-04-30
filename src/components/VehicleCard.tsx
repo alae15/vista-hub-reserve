@@ -27,11 +27,17 @@ const VehicleCard = ({
   seats,
   transmission,
   year,
+  featured,
 }: VehicleProps) => {
   return (
     <Link to={`/vehicle/${id}`} className="block group">
       <Card className="listing-card h-full">
-        <div className="listing-image">
+        <div className="relative listing-image">
+          {featured && (
+            <Badge className="absolute top-2 left-2 bg-martil-blue hover:bg-martil-blue text-white">
+              Featured
+            </Badge>
+          )}
           <img
             src={image}
             alt={title}
@@ -42,10 +48,10 @@ const VehicleCard = ({
         <div className="p-4">
           <div className="flex items-center justify-between">
             <Badge
-              variant={type === "car" ? "default" : "outline"}
-              className={`text-xs ${type === "car" ? "bg-martil-blue hover:bg-martil-blue" : ""}`}
+              variant={type.toLowerCase() === "car" ? "default" : "outline"}
+              className={`text-xs ${type.toLowerCase() === "car" ? "bg-martil-blue hover:bg-martil-blue" : ""}`}
             >
-              {type === "car" ? "Car" : "Motorcycle"}
+              {type}
             </Badge>
             <span className="text-xs text-muted-foreground">{year}</span>
           </div>
