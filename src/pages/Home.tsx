@@ -19,7 +19,19 @@ import MapView from "@/components/MapView";
 import { properties, vehicles, restaurants } from "@/data/mockData";
 
 const Home = () => {
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [checkInDate, setCheckInDate] = useState<Date | undefined>(new Date());
+  const [checkOutDate, setCheckOutDate] = useState<Date | undefined>(
+    checkInDate ? new Date(checkInDate.getTime() + 86400000) : undefined
+  );
+  
+  // Update checkout date when checkin date changes to ensure it's always later
+  const handleCheckInDateChange = (date: Date | undefined) => {
+    setCheckInDate(date);
+    if (date && (!checkOutDate || checkOutDate <= date)) {
+      // Set checkout date to the next day if it's not set or if it's before/equal to checkin
+      setCheckOutDate(new Date(date.getTime() + 86400000));
+    }
+  };
   
   // Filter featured items
   const featuredProperties = properties.filter(property => property.featured);
@@ -82,14 +94,14 @@ const Home = () => {
                             className="w-full justify-start text-left font-normal"
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {date ? format(date, "PPP") : <span>Pick a date</span>}
+                            {checkInDate ? format(checkInDate, "PPP") : <span>Pick a date</span>}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
                           <Calendar
                             mode="single"
-                            selected={date}
-                            onSelect={setDate}
+                            selected={checkInDate}
+                            onSelect={handleCheckInDateChange}
                             initialFocus
                           />
                         </PopoverContent>
@@ -105,14 +117,15 @@ const Home = () => {
                             className="w-full justify-start text-left font-normal"
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {date ? format(new Date(date.getTime() + 86400000), "PPP") : <span>Pick a date</span>}
+                            {checkOutDate ? format(checkOutDate, "PPP") : <span>Pick a date</span>}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
                           <Calendar
                             mode="single"
-                            selected={date ? new Date(date.getTime() + 86400000) : undefined}
-                            onSelect={setDate}
+                            selected={checkOutDate}
+                            onSelect={setCheckOutDate}
+                            disabled={(date) => date < (checkInDate || new Date())}
                             initialFocus
                           />
                         </PopoverContent>
@@ -168,14 +181,14 @@ const Home = () => {
                             className="w-full justify-start text-left font-normal"
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {date ? format(date, "PPP") : <span>Pick a date</span>}
+                            {checkInDate ? format(checkInDate, "PPP") : <span>Pick a date</span>}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
                           <Calendar
                             mode="single"
-                            selected={date}
-                            onSelect={setDate}
+                            selected={checkInDate}
+                            onSelect={handleCheckInDateChange}
                             initialFocus
                           />
                         </PopoverContent>
@@ -191,14 +204,15 @@ const Home = () => {
                             className="w-full justify-start text-left font-normal"
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {date ? format(new Date(date.getTime() + 86400000), "PPP") : <span>Pick a date</span>}
+                            {checkOutDate ? format(checkOutDate, "PPP") : <span>Pick a date</span>}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
                           <Calendar
                             mode="single"
-                            selected={date ? new Date(date.getTime() + 86400000) : undefined}
-                            onSelect={setDate}
+                            selected={checkOutDate}
+                            onSelect={setCheckOutDate}
+                            disabled={(date) => date < (checkInDate || new Date())}
                             initialFocus
                           />
                         </PopoverContent>
