@@ -18,12 +18,12 @@ const Navbar = () => {
         </Link>
 
         <div className="hidden md:flex items-center gap-2 mr-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring">
+            <Search className="ml-3 h-4 w-4 text-muted-foreground flex-shrink-0" />
             <Input
               type="search"
               placeholder="Search locations..."
-              className="pl-9 w-[200px] lg:w-[300px] bg-background"
+              className="w-[200px] lg:w-[300px] border-0 focus-visible:ring-0 focus-visible:ring-transparent"
             />
           </div>
         </div>
@@ -57,12 +57,12 @@ const Navbar = () => {
 
       {isMenuOpen && (
         <div className="container md:hidden py-4 px-4 animate-fade-in">
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="mb-4 flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring">
+            <Search className="ml-3 h-4 w-4 text-muted-foreground flex-shrink-0" />
             <Input
               type="search"
               placeholder="Search locations..."
-              className="pl-9 w-full bg-background"
+              className="border-0 focus-visible:ring-0 focus-visible:ring-transparent"
             />
           </div>
           <nav className="flex flex-col space-y-3">

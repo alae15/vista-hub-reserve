@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Search } from "lucide-react";
 
 interface SearchFiltersProps {
   type: "properties" | "vehicles" | "restaurants";
@@ -35,7 +35,10 @@ const SearchFilters = ({ type }: SearchFiltersProps) => {
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <div>
           <Label htmlFor="location">Location</Label>
-          <Input id="location" placeholder="Martil, Morocco" className="mt-1" />
+          <div className="mt-1 flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring">
+            <Search className="ml-3 h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <Input id="location" placeholder="Martil, Morocco" className="border-0 focus-visible:ring-0 focus-visible:ring-transparent" />
+          </div>
         </div>
 
         {(type === "properties" || type === "vehicles") && (
@@ -58,6 +61,7 @@ const SearchFilters = ({ type }: SearchFiltersProps) => {
                     selected={checkInDate}
                     onSelect={handleCheckInDateChange}
                     initialFocus
+                    className="pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>
@@ -82,6 +86,7 @@ const SearchFilters = ({ type }: SearchFiltersProps) => {
                     onSelect={setCheckOutDate}
                     disabled={(date) => date < (checkInDate || new Date())}
                     initialFocus
+                    className="pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>

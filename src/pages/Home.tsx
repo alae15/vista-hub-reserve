@@ -75,12 +75,12 @@ const Home = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
                       <Label htmlFor="location">Location</Label>
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring">
+                        <Search className="ml-3 h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <Input 
                           id="location" 
                           placeholder="Martil, Morocco" 
-                          className="pl-9"
+                          className="border-0 focus-visible:ring-0 focus-visible:ring-transparent"
                         />
                       </div>
                     </div>
@@ -97,12 +97,13 @@ const Home = () => {
                             {checkInDate ? format(checkInDate, "PPP") : <span>Pick a date</span>}
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
+                        <PopoverContent className="w-auto p-0 z-50">
                           <Calendar
                             mode="single"
                             selected={checkInDate}
                             onSelect={handleCheckInDateChange}
                             initialFocus
+                            className="pointer-events-auto"
                           />
                         </PopoverContent>
                       </Popover>
@@ -120,13 +121,14 @@ const Home = () => {
                             {checkOutDate ? format(checkOutDate, "PPP") : <span>Pick a date</span>}
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
+                        <PopoverContent className="w-auto p-0 z-50">
                           <Calendar
                             mode="single"
                             selected={checkOutDate}
                             onSelect={setCheckOutDate}
                             disabled={(date) => date < (checkInDate || new Date())}
                             initialFocus
+                            className="pointer-events-auto"
                           />
                         </PopoverContent>
                       </Popover>
@@ -163,11 +165,11 @@ const Home = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
                       <Label>Pick-up Location</Label>
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring">
+                        <Search className="ml-3 h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <Input 
-                          placeholder="Martil, Morocco" 
-                          className="pl-9"
+                          placeholder="Martil, Morocco"
+                          className="border-0 focus-visible:ring-0 focus-visible:ring-transparent"
                         />
                       </div>
                     </div>
@@ -184,12 +186,13 @@ const Home = () => {
                             {checkInDate ? format(checkInDate, "PPP") : <span>Pick a date</span>}
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
+                        <PopoverContent className="w-auto p-0 z-50">
                           <Calendar
                             mode="single"
                             selected={checkInDate}
                             onSelect={handleCheckInDateChange}
                             initialFocus
+                            className="pointer-events-auto"
                           />
                         </PopoverContent>
                       </Popover>
@@ -207,13 +210,14 @@ const Home = () => {
                             {checkOutDate ? format(checkOutDate, "PPP") : <span>Pick a date</span>}
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
+                        <PopoverContent className="w-auto p-0 z-50">
                           <Calendar
                             mode="single"
                             selected={checkOutDate}
                             onSelect={setCheckOutDate}
                             disabled={(date) => date < (checkInDate || new Date())}
                             initialFocus
+                            className="pointer-events-auto"
                           />
                         </PopoverContent>
                       </Popover>
@@ -248,11 +252,11 @@ const Home = () => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <Label>Location</Label>
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring">
+                        <Search className="ml-3 h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <Input 
                           placeholder="Martil, Morocco" 
-                          className="pl-9"
+                          className="border-0 focus-visible:ring-0 focus-visible:ring-transparent"
                         />
                       </div>
                     </div>
