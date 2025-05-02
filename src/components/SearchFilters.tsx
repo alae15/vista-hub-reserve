@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +19,7 @@ const SearchFilters = ({ type }: SearchFiltersProps) => {
   const [checkOutDate, setCheckOutDate] = useState<Date | undefined>(
     checkInDate ? new Date(checkInDate.getTime() + 86400000) : undefined
   );
+  const [priceRange, setPriceRange] = useState<[number, number]>([100, 500]);
 
   // Update checkout date when checkin date changes to ensure it's always later
   const handleCheckInDateChange = (date: Date | undefined) => {
