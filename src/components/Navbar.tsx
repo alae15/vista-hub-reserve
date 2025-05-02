@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, User, Menu, X } from "lucide-react";
+import { Search, Menu, X } from "lucide-react";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -38,14 +38,9 @@ const Navbar = () => {
           <Link to="/restaurants" className="text-sm font-medium hover:text-primary transition-colors pointer-events-auto">
             Restaurants
           </Link>
-          <Link to="/admin" className="text-sm font-medium hover:text-primary transition-colors pointer-events-auto">
-            Admin
+          <Link to="/book-now" className="pointer-events-auto">
+            <Button>Book Now</Button>
           </Link>
-          <Button variant="outline" size="sm" className="gap-1 pointer-events-auto">
-            <User className="h-4 w-4" />
-            <span>Login</span>
-          </Button>
-          <Button className="pointer-events-auto">Book Now</Button>
         </nav>
 
         <div className="md:hidden flex items-center pointer-events-auto">
@@ -75,14 +70,9 @@ const Navbar = () => {
             <Link to="/restaurants" className="text-sm font-medium p-2 hover:bg-muted rounded-md pointer-events-auto" onClick={toggleMenu}>
               Restaurants
             </Link>
-            <Link to="/admin" className="text-sm font-medium p-2 hover:bg-muted rounded-md pointer-events-auto" onClick={toggleMenu}>
-              Admin
+            <Link to="/book-now" onClick={toggleMenu} className="pointer-events-auto">
+              <Button className="w-full pointer-events-auto">Book Now</Button>
             </Link>
-            <Button variant="outline" size="sm" className="justify-center gap-1 w-full pointer-events-auto">
-              <User className="h-4 w-4" />
-              <span>Login</span>
-            </Button>
-            <Button className="w-full pointer-events-auto">Book Now</Button>
           </nav>
         </div>
       )}
