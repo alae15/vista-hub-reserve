@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +26,14 @@ const SearchFilters = ({ type }: SearchFiltersProps) => {
     if (date && (!checkOutDate || checkOutDate <= date)) {
       // Set checkout date to the next day if it's not set or if it's before/equal to checkin
       setCheckOutDate(new Date(date.getTime() + 86400000));
+    }
+  };
+
+  // Handle price range changes with proper type conversion
+  const handlePriceRangeChange = (value: number[]) => {
+    // Ensure we always have exactly two values as expected by our state
+    if (value.length === 2) {
+      setPriceRange([value[0], value[1]]);
     }
   };
 
@@ -188,7 +195,7 @@ const SearchFilters = ({ type }: SearchFiltersProps) => {
             max={1000}
             step={50}
             value={priceRange}
-            onValueChange={setPriceRange}
+            onValueChange={handlePriceRangeChange}
             className="mt-6"
           />
         </div>
