@@ -21,14 +21,17 @@ const CafeMap = ({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   
-  // List of top cafes in Martil (fictional data)
-  const cafes = [
-    { name: "Cafe Maroc", lat: 35.615367, lng: -5.271562, rating: 4.8 },
-    { name: "Beach Coffee", lat: 35.617367, lng: -5.273562, rating: 4.6 },
-    { name: "Sunset Cafe", lat: 35.614567, lng: -5.274562, rating: 4.9 },
-    { name: "Martil Espresso", lat: 35.618367, lng: -5.270562, rating: 4.7 },
-    { name: "Ocean View Coffee", lat: 35.613367, lng: -5.275562, rating: 4.5 },
-  ];
+  // Load custom cafe data from localStorage if available
+  const [cafes, setCafes] = useState(() => {
+    const savedCafes = localStorage.getItem('cafesList');
+    return savedCafes ? JSON.parse(savedCafes) : [
+      { name: "Cafe Maroc", lat: 35.615367, lng: -5.271562, rating: 4.8 },
+      { name: "Beach Coffee", lat: 35.617367, lng: -5.273562, rating: 4.6 },
+      { name: "Sunset Cafe", lat: 35.614567, lng: -5.274562, rating: 4.9 },
+      { name: "Martil Espresso", lat: 35.618367, lng: -5.270562, rating: 4.7 },
+      { name: "Ocean View Coffee", lat: 35.613367, lng: -5.275562, rating: 4.5 },
+    ];
+  });
 
   useEffect(() => {
     // Create a mock implementation for demo purposes
@@ -95,7 +98,7 @@ const CafeMap = ({
     
     // Cleanup function not needed for our mock implementation
     return () => {};
-  }, [mapStyle, zoomLevel, showMarkers, centerLat, centerLng]);
+  }, [mapStyle, zoomLevel, showMarkers, centerLat, centerLng, cafes]);
 
   return (
     <div 

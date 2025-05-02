@@ -8,17 +8,26 @@ import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
 import { CalendarIcon, Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface SearchFiltersProps {
   type: "properties" | "vehicles" | "restaurants";
+  onSearch?: (filters: any) => void;
 }
 
-const SearchFilters = ({ type }: SearchFiltersProps) => {
+const SearchFilters = ({ type, onSearch }: SearchFiltersProps) => {
+  const navigate = useNavigate();
   const [checkInDate, setCheckInDate] = useState<Date | undefined>(new Date());
   const [checkOutDate, setCheckOutDate] = useState<Date | undefined>(
     checkInDate ? new Date(checkInDate.getTime() + 86400000) : undefined
   );
   const [priceRange, setPriceRange] = useState<[number, number]>([100, 500]);
+  const [location, setLocation] = useState<string>("Martil, Morocco");
+  const [propertyType, setPropertyType] = useState<string>("all");
+  const [guests, setGuests] = useState<string>("");
+  const [cuisine, setCuisine] = useState<string>("all");
+  const [vehicleType, setVehicleType] = useState<string>("all");
+  const [transmission, setTransmission] = useState<string>("all");
 
   // Update checkout date when checkin date changes to ensure it's always later
   const handleCheckInDateChange = (date: Date | undefined) => {
@@ -37,6 +46,44 @@ const SearchFilters = ({ type }: SearchFiltersProps) => {
     }
   };
 
+  const handleSearch = () => {
+    // Collect all the filters
+    const filters = {
+      location,
+      propertyType: type === "properties" ? propertyType : undefined,
+      vehicleType: type === "vehicles" ? vehicleType : undefined,
+      cuisine: type === "restaurants" ? cuisine : undefined,
+      checkInDate,
+      checkOutDate,
+      priceRange,
+      guests,
+      transmission: type === "vehicles" ? transmission : undefined
+    };
+
+    // If onSearch prop is provided, call it with the filters
+    if (onSearch) {
+      onSearch(filters);
+    } else {
+      // Otherwise, navigate to the search page with query parameters
+      const queryParams = new URLSearchParams();
+      queryParams.append('location', location);
+      
+      if (type === "properties") {
+        queryParams.append('type', propertyType);
+      } else if (type === "vehicles") {
+        queryParams.append('type', vehicleType);
+      } else if (type === "restaurants") {
+        queryParams.append('cuisine', cuisine);
+      }
+      
+      queryParams.append('minPrice', priceRange[0].toString());
+      queryParams.append('maxPrice', priceRange[1].toString());
+      
+      // Navigate to the appropriate page with query parameters
+      navigate(`/${type}?${queryParams.toString()}`);
+    }
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm p-4 border mb-6 relative z-10 pointer-events-auto">
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 pointer-events-auto">
@@ -44,7 +91,13 @@ const SearchFilters = ({ type }: SearchFiltersProps) => {
           <Label htmlFor="location">Location</Label>
           <div className="mt-1 flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring pointer-events-auto">
             <Search className="ml-3 h-4 w-4 text-muted-foreground flex-shrink-0" />
-            <Input id="location" placeholder="Martil, Morocco" className="border-0 focus-visible:ring-0 focus-visible:ring-transparent pointer-events-auto" />
+            <Input 
+              id="location" 
+              placeholder="Martil, Morocco" 
+              className="border-0 focus-visible:ring-0 focus-visible:ring-transparent pointer-events-auto" 
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+            />
           </div>
         </div>
 
@@ -103,7 +156,18 @@ const SearchFilters = ({ type }: SearchFiltersProps) => {
 
         <div>
           <Label>{type === "properties" ? "Type" : type === "vehicles" ? "Vehicle Type" : "Cuisine"}</Label>
-          <Select>
+          <Select 
+            value={type === "properties" ? propertyType : type === "vehicles" ? vehicleType : cuisine}
+            onValueChange={(value) => {
+              if (type === "properties") {
+                setPropertyType(value);
+              } else if (type === "vehicles") {
+                setVehicleType(value);
+              } else {
+                setCuisine(value);
+              }
+            }}
+          >
             <SelectTrigger className="mt-1">
               <SelectValue placeholder={type === "properties" ? "Property type" : type === "vehicles" ? "Vehicle type" : "Cuisine type"} />
             </SelectTrigger>
@@ -139,7 +203,7 @@ const SearchFilters = ({ type }: SearchFiltersProps) => {
         {type === "properties" && (
           <div>
             <Label>Guests</Label>
-            <Select>
+            <Select value={guests} onValueChange={setGuests}>
               <SelectTrigger className="mt-1">
                 <SelectValue placeholder="Number of guests" />
               </SelectTrigger>
@@ -157,7 +221,7 @@ const SearchFilters = ({ type }: SearchFiltersProps) => {
         {type === "vehicles" && (
           <div>
             <Label>Transmission</Label>
-            <Select>
+            <Select value={transmission} onValueChange={setTransmission}>
               <SelectTrigger className="mt-1">
                 <SelectValue placeholder="Transmission type" />
               </SelectTrigger>
@@ -202,7 +266,7 @@ const SearchFilters = ({ type }: SearchFiltersProps) => {
       </div>
 
       <div className="mt-4 flex justify-end pointer-events-auto">
-        <Button className="pointer-events-auto">Search</Button>
+        <Button className="pointer-events-auto" onClick={handleSearch}>Search</Button>
       </div>
     </div>
   );

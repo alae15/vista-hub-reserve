@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -24,45 +25,71 @@ import { Textarea } from "@/components/ui/textarea";
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [propertiesList, setPropertiesList] = useState(properties);
-  const [vehiclesList, setVehiclesList] = useState(vehicles);
-  const [restaurantsList, setRestaurantsList] = useState(restaurants);
-  const [cafesList, setCafesList] = useState([
-    { id: 1, name: "Cafe Maroc", location: "Downtown Martil", rating: 4.8, image: "/images/cafe1.jpg" },
-    { id: 2, name: "Beach Coffee", location: "Martil Beach", rating: 4.6, image: "/images/cafe2.jpg" },
-    { id: 3, name: "Sunset Cafe", location: "West Martil", rating: 4.9, image: "/images/cafe3.jpg" },
-    { id: 4, name: "Martil Espresso", location: "City Center", rating: 4.7, image: "/images/cafe4.jpg" },
-    { id: 5, name: "Ocean View Coffee", location: "Coastal Road", rating: 4.5, image: "/images/cafe5.jpg" },
-  ]);
   
-  // Map settings
-  const [mapSettings, setMapSettings] = useState({
-    mapStyle: "streets",
-    zoomLevel: 14,
-    showMarkers: true,
-    centerLat: 35.616367,
-    centerLng: -5.272562,
+  // Initialize states with localStorage data if available
+  const [propertiesList, setPropertiesList] = useState(() => {
+    const savedProperties = localStorage.getItem('properties');
+    return savedProperties ? JSON.parse(savedProperties) : properties;
   });
   
-  // Website settings
-  const [siteSettings, setSiteSettings] = useState({
-    siteName: "MartiStay",
-    contactEmail: "info@martistay.com",
-    contactPhone: "+212 123-456789",
-    logoUrl: "/logo.png",
-    primaryColor: "#1e40af",
-    secondaryColor: "#f3f4f6",
-    heroTitle: "Your Perfect Vacation in Martil",
-    heroDescription: "Find the best properties, vehicles, and restaurants for an unforgettable experience in Morocco's coastal gem.",
-    showCafeMap: true,
+  const [vehiclesList, setVehiclesList] = useState(() => {
+    const savedVehicles = localStorage.getItem('vehicles');
+    return savedVehicles ? JSON.parse(savedVehicles) : vehicles;
+  });
+  
+  const [restaurantsList, setRestaurantsList] = useState(() => {
+    const savedRestaurants = localStorage.getItem('restaurants');
+    return savedRestaurants ? JSON.parse(savedRestaurants) : restaurants;
+  });
+  
+  const [cafesList, setCafesList] = useState(() => {
+    const savedCafes = localStorage.getItem('cafesList');
+    return savedCafes ? JSON.parse(savedCafes) : [
+      { id: 1, name: "Cafe Maroc", location: "Downtown Martil", rating: 4.8, image: "/images/cafe1.jpg" },
+      { id: 2, name: "Beach Coffee", location: "Martil Beach", rating: 4.6, image: "/images/cafe2.jpg" },
+      { id: 3, name: "Sunset Cafe", location: "West Martil", rating: 4.9, image: "/images/cafe3.jpg" },
+      { id: 4, name: "Martil Espresso", location: "City Center", rating: 4.7, image: "/images/cafe4.jpg" },
+      { id: 5, name: "Ocean View Coffee", location: "Coastal Road", rating: 4.5, image: "/images/cafe5.jpg" },
+    ];
+  });
+  
+  // Map settings from localStorage if available
+  const [mapSettings, setMapSettings] = useState(() => {
+    const savedMapSettings = localStorage.getItem('mapSettings');
+    return savedMapSettings ? JSON.parse(savedMapSettings) : {
+      mapStyle: "streets",
+      zoomLevel: 14,
+      showMarkers: true,
+      centerLat: 35.616367,
+      centerLng: -5.272562,
+    };
+  });
+  
+  // Website settings from localStorage if available
+  const [siteSettings, setSiteSettings] = useState(() => {
+    const savedSiteSettings = localStorage.getItem('siteSettings');
+    return savedSiteSettings ? JSON.parse(savedSiteSettings) : {
+      siteName: "MartiStay",
+      contactEmail: "info@martistay.com",
+      contactPhone: "+212 123-456789",
+      logoUrl: "/logo.png",
+      primaryColor: "#1e40af",
+      secondaryColor: "#f3f4f6",
+      heroTitle: "Your Perfect Vacation in Martil",
+      heroDescription: "Find the best properties, vehicles, and restaurants for an unforgettable experience in Morocco's coastal gem.",
+      showCafeMap: true,
+    };
   });
 
-  // Booking requests management
-  const [bookingRequests, setBookingRequests] = useState([
-    { id: 1, name: "John Doe", email: "john@example.com", type: "property", date: "2025-05-01", status: "pending" },
-    { id: 2, name: "Jane Smith", email: "jane@example.com", type: "vehicle", date: "2025-05-02", status: "confirmed" },
-    { id: 3, name: "Ahmed Hassan", email: "ahmed@example.com", type: "restaurant", date: "2025-05-03", status: "pending" },
-  ]);
+  // Booking requests from localStorage if available
+  const [bookingRequests, setBookingRequests] = useState(() => {
+    const savedBookings = localStorage.getItem('bookingRequests');
+    return savedBookings ? JSON.parse(savedBookings) : [
+      { id: 1, name: "John Doe", email: "john@example.com", type: "property", date: "2025-05-01", status: "pending" },
+      { id: 2, name: "Jane Smith", email: "jane@example.com", type: "vehicle", date: "2025-05-02", status: "confirmed" },
+      { id: 3, name: "Ahmed Hassan", email: "ahmed@example.com", type: "restaurant", date: "2025-05-03", status: "pending" },
+    ];
+  });
   
   // State for property operations
   const [isAddPropertyOpen, setIsAddPropertyOpen] = useState(false);
@@ -77,6 +104,35 @@ const AdminDashboard = () => {
   const mapForm = useForm({
     defaultValues: mapSettings
   });
+
+  // Save data to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('properties', JSON.stringify(propertiesList));
+  }, [propertiesList]);
+
+  useEffect(() => {
+    localStorage.setItem('vehicles', JSON.stringify(vehiclesList));
+  }, [vehiclesList]);
+
+  useEffect(() => {
+    localStorage.setItem('restaurants', JSON.stringify(restaurantsList));
+  }, [restaurantsList]);
+
+  useEffect(() => {
+    localStorage.setItem('cafesList', JSON.stringify(cafesList));
+  }, [cafesList]);
+
+  useEffect(() => {
+    localStorage.setItem('mapSettings', JSON.stringify(mapSettings));
+  }, [mapSettings]);
+
+  useEffect(() => {
+    localStorage.setItem('siteSettings', JSON.stringify(siteSettings));
+  }, [siteSettings]);
+
+  useEffect(() => {
+    localStorage.setItem('bookingRequests', JSON.stringify(bookingRequests));
+  }, [bookingRequests]);
   
   // Apply map settings
   const handleMapSettingsUpdate = (values: typeof mapSettings) => {
@@ -97,15 +153,10 @@ const AdminDashboard = () => {
   
   // Update site content
   const handleSiteSettingsUpdate = () => {
-    // In a real app, this would update a database
-    // For now we'll just show a success message
     toast({
       title: "Settings updated",
       description: "Your site content has been updated successfully.",
     });
-    
-    // The changes would be reflected on the site in a real implementation
-    // by fetching from a database on page load
   };
   
   // Property operations
@@ -150,6 +201,18 @@ const AdminDashboard = () => {
     toast({
       title: "Property updated",
       description: "The property has been updated successfully.",
+    });
+  };
+
+  const handleTogglePropertyFeature = (id: number, featured: boolean) => {
+    const updatedProperties = propertiesList.map(property => 
+      property.id === id ? { ...property, featured } : property
+    );
+    
+    setPropertiesList(updatedProperties);
+    toast({
+      title: featured ? "Property featured" : "Property unfeatured",
+      description: `Property #${id} has been ${featured ? "added to" : "removed from"} featured properties.`,
     });
   };
   
@@ -364,6 +427,7 @@ const AdminDashboard = () => {
                       <th className="py-3 px-4 text-left">Location</th>
                       <th className="py-3 px-4 text-left">Type</th>
                       <th className="py-3 px-4 text-left">Price</th>
+                      <th className="py-3 px-4 text-left">Featured</th>
                       <th className="py-3 px-4 text-right">Actions</th>
                     </tr>
                   </thead>
@@ -382,6 +446,12 @@ const AdminDashboard = () => {
                         <td className="py-3 px-4">{property.location}</td>
                         <td className="py-3 px-4">{property.type}</td>
                         <td className="py-3 px-4">${property.price}/night</td>
+                        <td className="py-3 px-4">
+                          <Switch 
+                            checked={property.featured} 
+                            onCheckedChange={(checked) => handleTogglePropertyFeature(property.id, checked)} 
+                          />
+                        </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex gap-2 justify-end">
                             <Dialog>

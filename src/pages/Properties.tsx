@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SearchFilters from "@/components/SearchFilters";
@@ -10,6 +11,69 @@ import { Grid3X3, List } from "lucide-react";
 
 const Properties = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [filteredProperties, setFilteredProperties] = useState(properties);
+  const location = useLocation();
+
+  useEffect(() => {
+    // Parse query params when the page loads or URL changes
+    const searchParams = new URLSearchParams(location.search);
+    
+    if (searchParams.toString()) {
+      // Apply filters based on URL parameters
+      const searchLocation = searchParams.get('location');
+      const propertyType = searchParams.get('type');
+      const minPrice = Number(searchParams.get('minPrice') || 0);
+      const maxPrice = Number(searchParams.get('maxPrice') || 1000);
+      
+      // Filter properties based on search parameters
+      const filtered = properties.filter(property => {
+        // Filter by location if provided
+        if (searchLocation && !property.location.toLowerCase().includes(searchLocation.toLowerCase())) {
+          return false;
+        }
+        
+        // Filter by type if provided and not "all"
+        if (propertyType && propertyType !== "all" && property.type !== propertyType) {
+          return false;
+        }
+        
+        // Filter by price range
+        if (property.price < minPrice || property.price > maxPrice) {
+          return false;
+        }
+        
+        return true;
+      });
+      
+      setFilteredProperties(filtered);
+    } else {
+      setFilteredProperties(properties);
+    }
+  }, [location.search]);
+
+  const handleSearch = (filters: any) => {
+    // Apply filters to the properties
+    const filtered = properties.filter(property => {
+      // Filter by location if provided
+      if (filters.location && !property.location.toLowerCase().includes(filters.location.toLowerCase())) {
+        return false;
+      }
+      
+      // Filter by type if provided and not "all"
+      if (filters.propertyType && filters.propertyType !== "all" && property.type !== filters.propertyType) {
+        return false;
+      }
+      
+      // Filter by price range
+      if (property.price < filters.priceRange[0] || property.price > filters.priceRange[1]) {
+        return false;
+      }
+      
+      return true;
+    });
+    
+    setFilteredProperties(filtered);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -25,11 +89,11 @@ const Properties = () => {
               Find your perfect place to stay in this beautiful coastal town
             </p>
             
-            <SearchFilters type="properties" />
+            <SearchFilters type="properties" onSearch={handleSearch} />
             
             <div className="flex justify-between items-center mb-6">
               <p className="text-muted-foreground">
-                <span className="font-medium text-martil-navy">{properties.length}</span> properties found
+                <span className="font-medium text-martil-navy">{filteredProperties.length}</span> properties found
               </p>
               <div className="flex items-center gap-2">
                 <Button 
@@ -51,13 +115,13 @@ const Properties = () => {
             
             {viewMode === "grid" ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {properties.map(property => (
+                {filteredProperties.map(property => (
                   <PropertyCard key={property.id} {...property} />
                 ))}
               </div>
             ) : (
               <div className="space-y-4">
-                {properties.map(property => (
+                {filteredProperties.map(property => (
                   <div key={property.id} className="listing-card overflow-hidden">
                     <div className="flex flex-col md:flex-row">
                       <div className="md:w-1/3 h-64 md:h-auto">

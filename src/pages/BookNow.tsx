@@ -47,6 +47,21 @@ const BookNow = () => {
     setIsSubmitting(true);
     
     try {
+      // Prepare the booking data
+      const bookingData = {
+        id: Date.now(),
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        type: formData.bookingType,
+        guests: formData.guests,
+        checkIn: startDate ? format(startDate, "yyyy-MM-dd") : "",
+        checkOut: endDate ? format(endDate, "yyyy-MM-dd") : "",
+        specialRequests: formData.specialRequests,
+        date: format(new Date(), "yyyy-MM-dd"),
+        status: "pending"
+      };
+      
       // Prepare the email data
       const emailData = {
         to: "admin@martistay.com", // Replace with your actual email
@@ -72,12 +87,12 @@ const BookNow = () => {
       // In a real implementation, this would send to an endpoint
       console.log("Sending email with data:", emailData);
       
-      // For demonstration, we'll simulate a successful email send
-      // In a production environment, you would:
-      // 1. Create a backend endpoint (using Supabase Edge Functions)
-      // 2. Use a service like SendGrid, AWS SES, or similar
+      // Store the booking data in localStorage for the admin dashboard
+      const existingBookings = JSON.parse(localStorage.getItem('bookingRequests') || '[]');
+      const updatedBookings = [...existingBookings, bookingData];
+      localStorage.setItem('bookingRequests', JSON.stringify(updatedBookings));
       
-      // Simulate api call
+      // For demonstration, we'll simulate a successful email send
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       toast({
