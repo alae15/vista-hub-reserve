@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +18,6 @@ const SearchFilters = ({ type }: SearchFiltersProps) => {
   const [checkOutDate, setCheckOutDate] = useState<Date | undefined>(
     checkInDate ? new Date(checkInDate.getTime() + 86400000) : undefined
   );
-  const [priceRange, setPriceRange] = useState([100, 500]);
 
   // Update checkout date when checkin date changes to ensure it's always later
   const handleCheckInDateChange = (date: Date | undefined) => {
@@ -31,31 +29,31 @@ const SearchFilters = ({ type }: SearchFiltersProps) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-4 border mb-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <div>
+    <div className="bg-white rounded-xl shadow-sm p-4 border mb-6 relative z-10 pointer-events-auto">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 pointer-events-auto">
+        <div className="pointer-events-auto">
           <Label htmlFor="location">Location</Label>
-          <div className="mt-1 flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring">
+          <div className="mt-1 flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring pointer-events-auto">
             <Search className="ml-3 h-4 w-4 text-muted-foreground flex-shrink-0" />
-            <Input id="location" placeholder="Martil, Morocco" className="border-0 focus-visible:ring-0 focus-visible:ring-transparent" />
+            <Input id="location" placeholder="Martil, Morocco" className="border-0 focus-visible:ring-0 focus-visible:ring-transparent pointer-events-auto" />
           </div>
         </div>
 
         {(type === "properties" || type === "vehicles") && (
           <>
-            <div>
+            <div className="pointer-events-auto">
               <Label>Check-in</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="w-full justify-start text-left font-normal mt-1"
+                    className="w-full justify-start text-left font-normal mt-1 pointer-events-auto"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {checkInDate ? format(checkInDate, "PPP") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 z-50">
+                <PopoverContent className="w-auto p-0 z-50 pointer-events-auto">
                   <Calendar
                     mode="single"
                     selected={checkInDate}
@@ -67,19 +65,19 @@ const SearchFilters = ({ type }: SearchFiltersProps) => {
               </Popover>
             </div>
 
-            <div>
+            <div className="pointer-events-auto">
               <Label>Check-out</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="w-full justify-start text-left font-normal mt-1"
+                    className="w-full justify-start text-left font-normal mt-1 pointer-events-auto"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {checkOutDate ? format(checkOutDate, "PPP") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 z-50">
+                <PopoverContent className="w-auto p-0 z-50 pointer-events-auto">
                   <Calendar
                     mode="single"
                     selected={checkOutDate}
@@ -194,8 +192,8 @@ const SearchFilters = ({ type }: SearchFiltersProps) => {
         </div>
       </div>
 
-      <div className="mt-4 flex justify-end">
-        <Button>Search</Button>
+      <div className="mt-4 flex justify-end pointer-events-auto">
+        <Button className="pointer-events-auto">Search</Button>
       </div>
     </div>
   );

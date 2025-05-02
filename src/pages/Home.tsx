@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -44,7 +43,7 @@ const Home = () => {
       
       {/* Hero Section */}
       <div className="hero-section text-white py-20 md:py-32 px-4 relative">
-        <div className="container mx-auto max-w-4xl text-center z-10">
+        <div className="container mx-auto max-w-4xl text-center z-10 relative">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
             Your Perfect Vacation in Martil
           </h1>
@@ -53,51 +52,51 @@ const Home = () => {
           </p>
           
           {/* Search Box */}
-          <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 text-left">
-            <Tabs defaultValue="stay" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-4">
-                <TabsTrigger value="stay" className="flex items-center gap-2">
+          <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 text-left relative z-20 pointer-events-auto">
+            <Tabs defaultValue="stay" className="w-full pointer-events-auto">
+              <TabsList className="grid w-full grid-cols-3 mb-4 pointer-events-auto">
+                <TabsTrigger value="stay" className="flex items-center gap-2 pointer-events-auto">
                   <HomeIcon className="h-4 w-4" />
                   <span>Stay</span>
                 </TabsTrigger>
-                <TabsTrigger value="vehicle" className="flex items-center gap-2">
+                <TabsTrigger value="vehicle" className="flex items-center gap-2 pointer-events-auto">
                   <Car className="h-4 w-4" />
                   <span>Vehicles</span>
                 </TabsTrigger>
-                <TabsTrigger value="eat" className="flex items-center gap-2">
+                <TabsTrigger value="eat" className="flex items-center gap-2 pointer-events-auto">
                   <MapPin className="h-4 w-4" />
                   <span>Restaurants</span>
                 </TabsTrigger>
               </TabsList>
               
-              <TabsContent value="stay" className="mt-0">
-                <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div>
+              <TabsContent value="stay" className="mt-0 pointer-events-auto">
+                <form onSubmit={(e) => e.preventDefault()} className="space-y-4 pointer-events-auto">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pointer-events-auto">
+                    <div className="pointer-events-auto">
                       <Label htmlFor="location">Location</Label>
-                      <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring">
+                      <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring pointer-events-auto">
                         <Search className="ml-3 h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <Input 
                           id="location" 
                           placeholder="Martil, Morocco" 
-                          className="border-0 focus-visible:ring-0 focus-visible:ring-transparent"
+                          className="border-0 focus-visible:ring-0 focus-visible:ring-transparent pointer-events-auto"
                         />
                       </div>
                     </div>
                     
-                    <div>
+                    <div className="pointer-events-auto">
                       <Label>Check-in</Label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
-                            className="w-full justify-start text-left font-normal"
+                            className="w-full justify-start text-left font-normal pointer-events-auto"
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
                             {checkInDate ? format(checkInDate, "PPP") : <span>Pick a date</span>}
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 z-50">
+                        <PopoverContent className="w-auto p-0 z-50 pointer-events-auto" align="start">
                           <Calendar
                             mode="single"
                             selected={checkInDate}
@@ -109,19 +108,19 @@ const Home = () => {
                       </Popover>
                     </div>
                     
-                    <div>
+                    <div className="pointer-events-auto">
                       <Label>Check-out</Label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
-                            className="w-full justify-start text-left font-normal"
+                            className="w-full justify-start text-left font-normal pointer-events-auto"
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
                             {checkOutDate ? format(checkOutDate, "PPP") : <span>Pick a date</span>}
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 z-50">
+                        <PopoverContent className="w-auto p-0 z-50 pointer-events-auto" align="start">
                           <Calendar
                             mode="single"
                             selected={checkOutDate}
@@ -134,13 +133,13 @@ const Home = () => {
                       </Popover>
                     </div>
                     
-                    <div>
+                    <div className="pointer-events-auto">
                       <Label>Guests</Label>
                       <Select>
-                        <SelectTrigger>
+                        <SelectTrigger className="pointer-events-auto">
                           <SelectValue placeholder="Select guests" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="pointer-events-auto">
                           <SelectItem value="1">1 Guest</SelectItem>
                           <SelectItem value="2">2 Guests</SelectItem>
                           <SelectItem value="3">3 Guests</SelectItem>
@@ -151,8 +150,8 @@ const Home = () => {
                     </div>
                   </div>
                   
-                  <div className="flex justify-end">
-                    <Button type="submit" size="lg" className="gap-2">
+                  <div className="flex justify-end pointer-events-auto">
+                    <Button type="submit" size="lg" className="gap-2 pointer-events-auto">
                       <span>Search Properties</span>
                       <ChevronRight className="h-4 w-4" />
                     </Button>
@@ -160,33 +159,33 @@ const Home = () => {
                 </form>
               </TabsContent>
               
-              <TabsContent value="vehicle" className="mt-0">
-                <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div>
+              <TabsContent value="vehicle" className="mt-0 pointer-events-auto">
+                <form onSubmit={(e) => e.preventDefault()} className="space-y-4 pointer-events-auto">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pointer-events-auto">
+                    <div className="pointer-events-auto">
                       <Label>Pick-up Location</Label>
-                      <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring">
+                      <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring pointer-events-auto">
                         <Search className="ml-3 h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <Input 
                           placeholder="Martil, Morocco"
-                          className="border-0 focus-visible:ring-0 focus-visible:ring-transparent"
+                          className="border-0 focus-visible:ring-0 focus-visible:ring-transparent pointer-events-auto"
                         />
                       </div>
                     </div>
                     
-                    <div>
+                    <div className="pointer-events-auto">
                       <Label>Pick-up Date</Label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
-                            className="w-full justify-start text-left font-normal"
+                            className="w-full justify-start text-left font-normal pointer-events-auto"
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
                             {checkInDate ? format(checkInDate, "PPP") : <span>Pick a date</span>}
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 z-50">
+                        <PopoverContent className="w-auto p-0 z-50 pointer-events-auto" align="start">
                           <Calendar
                             mode="single"
                             selected={checkInDate}
@@ -198,19 +197,19 @@ const Home = () => {
                       </Popover>
                     </div>
                     
-                    <div>
+                    <div className="pointer-events-auto">
                       <Label>Return Date</Label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
-                            className="w-full justify-start text-left font-normal"
+                            className="w-full justify-start text-left font-normal pointer-events-auto"
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
                             {checkOutDate ? format(checkOutDate, "PPP") : <span>Pick a date</span>}
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 z-50">
+                        <PopoverContent className="w-auto p-0 z-50 pointer-events-auto" align="start">
                           <Calendar
                             mode="single"
                             selected={checkOutDate}
@@ -223,13 +222,13 @@ const Home = () => {
                       </Popover>
                     </div>
                     
-                    <div>
+                    <div className="pointer-events-auto">
                       <Label>Vehicle Type</Label>
                       <Select>
-                        <SelectTrigger>
+                        <SelectTrigger className="pointer-events-auto">
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="pointer-events-auto">
                           <SelectItem value="all">All Vehicles</SelectItem>
                           <SelectItem value="car">Cars</SelectItem>
                           <SelectItem value="motorcycle">Motorcycles</SelectItem>
@@ -238,8 +237,8 @@ const Home = () => {
                     </div>
                   </div>
                   
-                  <div className="flex justify-end">
-                    <Button type="submit" size="lg" className="gap-2">
+                  <div className="flex justify-end pointer-events-auto">
+                    <Button type="submit" size="lg" className="gap-2 pointer-events-auto">
                       <span>Find Vehicles</span>
                       <ChevronRight className="h-4 w-4" />
                     </Button>
@@ -247,27 +246,27 @@ const Home = () => {
                 </form>
               </TabsContent>
               
-              <TabsContent value="eat" className="mt-0">
-                <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
+              <TabsContent value="eat" className="mt-0 pointer-events-auto">
+                <form onSubmit={(e) => e.preventDefault()} className="space-y-4 pointer-events-auto">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pointer-events-auto">
+                    <div className="pointer-events-auto">
                       <Label>Location</Label>
-                      <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring">
+                      <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring pointer-events-auto">
                         <Search className="ml-3 h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <Input 
                           placeholder="Martil, Morocco" 
-                          className="border-0 focus-visible:ring-0 focus-visible:ring-transparent"
+                          className="border-0 focus-visible:ring-0 focus-visible:ring-transparent pointer-events-auto"
                         />
                       </div>
                     </div>
                     
-                    <div>
+                    <div className="pointer-events-auto">
                       <Label>Cuisine</Label>
                       <Select>
-                        <SelectTrigger>
+                        <SelectTrigger className="pointer-events-auto">
                           <SelectValue placeholder="Type of cuisine" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="pointer-events-auto">
                           <SelectItem value="all">All Cuisines</SelectItem>
                           <SelectItem value="moroccan">Moroccan</SelectItem>
                           <SelectItem value="mediterranean">Mediterranean</SelectItem>
@@ -277,13 +276,13 @@ const Home = () => {
                       </Select>
                     </div>
                     
-                    <div>
+                    <div className="pointer-events-auto">
                       <Label>Price Range</Label>
                       <Select>
-                        <SelectTrigger>
+                        <SelectTrigger className="pointer-events-auto">
                           <SelectValue placeholder="Select price range" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="pointer-events-auto">
                           <SelectItem value="all">All Prices</SelectItem>
                           <SelectItem value="$">$ (Budget)</SelectItem>
                           <SelectItem value="$$">$$ (Moderate)</SelectItem>
@@ -293,8 +292,8 @@ const Home = () => {
                     </div>
                   </div>
                   
-                  <div className="flex justify-end">
-                    <Button type="submit" size="lg" className="gap-2">
+                  <div className="flex justify-end pointer-events-auto">
+                    <Button type="submit" size="lg" className="gap-2 pointer-events-auto">
                       <span>Find Restaurants</span>
                       <ChevronRight className="h-4 w-4" />
                     </Button>
@@ -305,8 +304,8 @@ const Home = () => {
           </div>
         </div>
         
-        {/* Dark overlay */}
-        <div className="absolute inset-0 bg-black/40"></div>
+        {/* Dark overlay - adjusted z-index to be lower than search form */}
+        <div className="absolute inset-0 bg-black/40 z-0"></div>
       </div>
       
       <main className="flex-1">

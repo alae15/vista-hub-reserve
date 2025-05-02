@@ -18,71 +18,71 @@ const Navbar = () => {
         </Link>
 
         <div className="hidden md:flex items-center gap-2 mr-4">
-          <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring">
+          <div className="flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring pointer-events-auto">
             <Search className="ml-3 h-4 w-4 text-muted-foreground flex-shrink-0" />
             <Input
               type="search"
               placeholder="Search locations..."
-              className="w-[200px] lg:w-[300px] border-0 focus-visible:ring-0 focus-visible:ring-transparent"
+              className="w-[200px] lg:w-[300px] border-0 focus-visible:ring-0 focus-visible:ring-transparent pointer-events-auto"
             />
           </div>
         </div>
 
         <nav className="hidden md:flex items-center gap-6">
-          <Link to="/properties" className="text-sm font-medium hover:text-primary transition-colors">
+          <Link to="/properties" className="text-sm font-medium hover:text-primary transition-colors pointer-events-auto">
             Properties
           </Link>
-          <Link to="/vehicles" className="text-sm font-medium hover:text-primary transition-colors">
+          <Link to="/vehicles" className="text-sm font-medium hover:text-primary transition-colors pointer-events-auto">
             Vehicles
           </Link>
-          <Link to="/restaurants" className="text-sm font-medium hover:text-primary transition-colors">
+          <Link to="/restaurants" className="text-sm font-medium hover:text-primary transition-colors pointer-events-auto">
             Restaurants
           </Link>
-          <Link to="/admin" className="text-sm font-medium hover:text-primary transition-colors">
+          <Link to="/admin" className="text-sm font-medium hover:text-primary transition-colors pointer-events-auto">
             Admin
           </Link>
-          <Button variant="outline" size="sm" className="gap-1">
+          <Button variant="outline" size="sm" className="gap-1 pointer-events-auto">
             <User className="h-4 w-4" />
             <span>Login</span>
           </Button>
-          <Button>Book Now</Button>
+          <Button className="pointer-events-auto">Book Now</Button>
         </nav>
 
-        <div className="md:hidden flex items-center">
-          <Button variant="ghost" size="icon" onClick={toggleMenu}>
+        <div className="md:hidden flex items-center pointer-events-auto">
+          <Button variant="ghost" size="icon" onClick={toggleMenu} className="pointer-events-auto">
             {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </Button>
         </div>
       </div>
 
       {isMenuOpen && (
-        <div className="container md:hidden py-4 px-4 animate-fade-in">
-          <div className="mb-4 flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring">
+        <div className="container md:hidden py-4 px-4 animate-fade-in pointer-events-auto">
+          <div className="mb-4 flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring pointer-events-auto">
             <Search className="ml-3 h-4 w-4 text-muted-foreground flex-shrink-0" />
             <Input
               type="search"
               placeholder="Search locations..."
-              className="border-0 focus-visible:ring-0 focus-visible:ring-transparent"
+              className="border-0 focus-visible:ring-0 focus-visible:ring-transparent pointer-events-auto"
             />
           </div>
-          <nav className="flex flex-col space-y-3">
-            <Link to="/properties" className="text-sm font-medium p-2 hover:bg-muted rounded-md" onClick={toggleMenu}>
+          <nav className="flex flex-col space-y-3 pointer-events-auto">
+            <Link to="/properties" className="text-sm font-medium p-2 hover:bg-muted rounded-md pointer-events-auto" onClick={toggleMenu}>
               Properties
             </Link>
-            <Link to="/vehicles" className="text-sm font-medium p-2 hover:bg-muted rounded-md" onClick={toggleMenu}>
+            <Link to="/vehicles" className="text-sm font-medium p-2 hover:bg-muted rounded-md pointer-events-auto" onClick={toggleMenu}>
               Vehicles
             </Link>
-            <Link to="/restaurants" className="text-sm font-medium p-2 hover:bg-muted rounded-md" onClick={toggleMenu}>
+            <Link to="/restaurants" className="text-sm font-medium p-2 hover:bg-muted rounded-md pointer-events-auto" onClick={toggleMenu}>
               Restaurants
             </Link>
-            <Link to="/admin" className="text-sm font-medium p-2 hover:bg-muted rounded-md" onClick={toggleMenu}>
+            <Link to="/admin" className="text-sm font-medium p-2 hover:bg-muted rounded-md pointer-events-auto" onClick={toggleMenu}>
               Admin
             </Link>
-            <Button variant="outline" size="sm" className="justify-center gap-1 w-full">
+            <Button variant="outline" size="sm" className="justify-center gap-1 w-full pointer-events-auto">
               <User className="h-4 w-4" />
               <span>Login</span>
             </Button>
-            <Button className="w-full">Book Now</Button>
+            <Button className="w-full pointer-events-auto">Book Now</Button>
           </nav>
         </div>
       )}
