@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -12,7 +12,14 @@ import { DeleteConfirmation } from "@/components/DeleteConfirmation";
 import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Settings, FileImage, MapPin, PenTool, Globe, Car, Utensils } from "lucide-react";
+import { Settings, FileImage, MapPin, PenTool, Globe, Car, Utensils, Coffee, Edit, Mail, Send } from "lucide-react";
+import CafeMap from "@/components/CafeMap";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -20,6 +27,24 @@ const AdminDashboard = () => {
   const [propertiesList, setPropertiesList] = useState(properties);
   const [vehiclesList, setVehiclesList] = useState(vehicles);
   const [restaurantsList, setRestaurantsList] = useState(restaurants);
+  const [cafesList, setCafesList] = useState([
+    { id: 1, name: "Cafe Maroc", location: "Downtown Martil", rating: 4.8, image: "/images/cafe1.jpg" },
+    { id: 2, name: "Beach Coffee", location: "Martil Beach", rating: 4.6, image: "/images/cafe2.jpg" },
+    { id: 3, name: "Sunset Cafe", location: "West Martil", rating: 4.9, image: "/images/cafe3.jpg" },
+    { id: 4, name: "Martil Espresso", location: "City Center", rating: 4.7, image: "/images/cafe4.jpg" },
+    { id: 5, name: "Ocean View Coffee", location: "Coastal Road", rating: 4.5, image: "/images/cafe5.jpg" },
+  ]);
+  
+  // Map settings
+  const [mapSettings, setMapSettings] = useState({
+    mapStyle: "streets",
+    zoomLevel: 14,
+    showMarkers: true,
+    centerLat: 35.616367,
+    centerLng: -5.272562,
+  });
+  
+  // Website settings
   const [siteSettings, setSiteSettings] = useState({
     siteName: "MartiStay",
     contactEmail: "info@martistay.com",
@@ -27,7 +52,17 @@ const AdminDashboard = () => {
     logoUrl: "/logo.png",
     primaryColor: "#1e40af",
     secondaryColor: "#f3f4f6",
+    heroTitle: "Your Perfect Vacation in Martil",
+    heroDescription: "Find the best properties, vehicles, and restaurants for an unforgettable experience in Morocco's coastal gem.",
+    showCafeMap: true,
   });
+
+  // Booking requests management
+  const [bookingRequests, setBookingRequests] = useState([
+    { id: 1, name: "John Doe", email: "john@example.com", type: "property", date: "2025-05-01", status: "pending" },
+    { id: 2, name: "Jane Smith", email: "jane@example.com", type: "vehicle", date: "2025-05-02", status: "confirmed" },
+    { id: 3, name: "Ahmed Hassan", email: "ahmed@example.com", type: "restaurant", date: "2025-05-03", status: "pending" },
+  ]);
   
   // State for property operations
   const [isAddPropertyOpen, setIsAddPropertyOpen] = useState(false);
@@ -38,12 +73,39 @@ const AdminDashboard = () => {
   // State for tabs
   const [activeTab, setActiveTab] = useState("properties");
   
+  // Form for map settings
+  const mapForm = useForm({
+    defaultValues: mapSettings
+  });
+  
+  // Apply map settings
+  const handleMapSettingsUpdate = (values: typeof mapSettings) => {
+    setMapSettings(values);
+    toast({
+      title: "Map settings updated",
+      description: "Your map configuration has been saved and applied.",
+    });
+  };
+  
   const handleLogout = () => {
     toast({
       title: "Logged out",
       description: "You have been successfully logged out.",
     });
     navigate("/admin");
+  };
+  
+  // Update site content
+  const handleSiteSettingsUpdate = () => {
+    // In a real app, this would update a database
+    // For now we'll just show a success message
+    toast({
+      title: "Settings updated",
+      description: "Your site content has been updated successfully.",
+    });
+    
+    // The changes would be reflected on the site in a real implementation
+    // by fetching from a database on page load
   };
   
   // Property operations
@@ -108,6 +170,20 @@ const AdminDashboard = () => {
     });
   };
   
+  // Booking request management
+  const handleUpdateBookingStatus = (id: number, status: string) => {
+    setBookingRequests(requests => 
+      requests.map(request => 
+        request.id === id ? {...request, status} : request
+      )
+    );
+    
+    toast({
+      title: "Status updated",
+      description: `Booking request #${id} is now ${status}.`,
+    });
+  };
+  
   // Generic handlers for other types
   const handleAdd = (type: string) => {
     toast({
@@ -131,19 +207,36 @@ const AdminDashboard = () => {
     });
   };
 
-  const handleSiteSettingsUpdate = () => {
+  // Add a new cafe
+  const handleAddCafe = () => {
+    const newCafe = {
+      id: cafesList.length + 1,
+      name: "New Cafe",
+      location: "Martil",
+      rating: 4.0,
+      image: "/images/placeholder.svg"
+    };
+    
+    setCafesList([...cafesList, newCafe]);
     toast({
-      title: "Settings updated",
-      description: "Your site settings have been updated successfully.",
+      title: "Cafe added",
+      description: "A new cafe has been added to the list.",
     });
   };
   
-  // Handle Map Settings
-  const handleMapSettingsUpdate = () => {
+  // Respond to an email booking request
+  const handleRespondToBooking = (id: number) => {
+    const booking = bookingRequests.find(request => request.id === id);
+    
+    if (!booking) return;
+    
     toast({
-      title: "Map settings updated",
-      description: "Your map configuration has been saved successfully.",
+      title: "Email sent",
+      description: `Response email sent to ${booking.email}`,
     });
+    
+    // Update the status to responded
+    handleUpdateBookingStatus(id, "responded");
   };
   
   return (
@@ -161,7 +254,7 @@ const AdminDashboard = () => {
             </Button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
             <Card className="cursor-pointer hover:shadow-md transition-shadow" 
                   onClick={() => setActiveTab("properties")}>
               <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
@@ -205,26 +298,42 @@ const AdminDashboard = () => {
             </Card>
             
             <Card className="cursor-pointer hover:shadow-md transition-shadow"
-                  onClick={() => setActiveTab("settings")}>
+                  onClick={() => setActiveTab("cafes")}>
               <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                <CardTitle className="text-sm font-medium">Site Settings</CardTitle>
-                <Settings className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">Cafes</CardTitle>
+                <Coffee className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">4</div>
+                <div className="text-2xl font-bold">{cafesList.length}</div>
                 <p className="text-xs text-muted-foreground">
-                  Configure your website settings
+                  Manage cafe listings and map
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => setActiveTab("bookings")}>
+              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardTitle className="text-sm font-medium">Bookings</CardTitle>
+                <Mail className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{bookingRequests.length}</div>
+                <p className="text-xs text-muted-foreground">
+                  Manage booking requests
                 </p>
               </CardContent>
             </Card>
           </div>
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-white rounded-xl shadow-sm border p-6">
-            <TabsList className="grid grid-cols-4 w-full mb-8">
+            <TabsList className="grid w-full mb-8" style={{ gridTemplateColumns: "repeat(6, 1fr)" }}>
               <TabsTrigger value="properties">Properties</TabsTrigger>
               <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
               <TabsTrigger value="restaurants">Restaurants</TabsTrigger>
-              <TabsTrigger value="settings">Site Settings</TabsTrigger>
+              <TabsTrigger value="cafes">Cafes</TabsTrigger>
+              <TabsTrigger value="bookings">Bookings</TabsTrigger>
+              <TabsTrigger value="settings">Settings</TabsTrigger>
             </TabsList>
             
             <TabsContent value="properties">
@@ -463,95 +572,271 @@ const AdminDashboard = () => {
               </div>
             </TabsContent>
             
+            <TabsContent value="cafes">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-medium">Martil Cafes</h2>
+                <Button onClick={handleAddCafe}>
+                  Add New Cafe
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <div className="mb-4">
+                    <h3 className="text-lg font-medium mb-4">Cafe Map Preview</h3>
+                    <CafeMap 
+                      height="400px"
+                      mapStyle={mapSettings.mapStyle}
+                      zoomLevel={mapSettings.zoomLevel}
+                      showMarkers={mapSettings.showMarkers}
+                      centerLat={mapSettings.centerLat}
+                      centerLng={mapSettings.centerLng}
+                    />
+                  </div>
+                  
+                  <div className="bg-gray-50 rounded-lg p-4 border">
+                    <h3 className="text-lg font-medium mb-4">Map Settings</h3>
+                    <form onSubmit={mapForm.handleSubmit(handleMapSettingsUpdate)} className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Map Style</Label>
+                          <Select 
+                            defaultValue={mapSettings.mapStyle}
+                            onValueChange={(value) => mapForm.setValue("mapStyle", value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select style" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="streets">Streets</SelectItem>
+                              <SelectItem value="satellite">Satellite</SelectItem>
+                              <SelectItem value="hybrid">Hybrid</SelectItem>
+                              <SelectItem value="light">Light</SelectItem>
+                              <SelectItem value="dark">Dark</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label>Zoom Level</Label>
+                          <Input 
+                            type="number" 
+                            min="1" 
+                            max="20"
+                            defaultValue={mapSettings.zoomLevel}
+                            onChange={(e) => mapForm.setValue("zoomLevel", parseInt(e.target.value))}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label>Center Latitude</Label>
+                          <Input 
+                            type="number" 
+                            step="0.000001"
+                            defaultValue={mapSettings.centerLat}
+                            onChange={(e) => mapForm.setValue("centerLat", parseFloat(e.target.value))}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label>Center Longitude</Label>
+                          <Input 
+                            type="number" 
+                            step="0.000001"
+                            defaultValue={mapSettings.centerLng}
+                            onChange={(e) => mapForm.setValue("centerLng", parseFloat(e.target.value))}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2 flex items-center">
+                          <div className="flex items-center space-x-2">
+                            <Switch 
+                              id="show-markers"
+                              defaultChecked={mapSettings.showMarkers}
+                              onCheckedChange={(checked) => mapForm.setValue("showMarkers", checked)}
+                            />
+                            <Label htmlFor="show-markers">Show Cafe Markers</Label>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <Button type="submit">Save Map Settings</Button>
+                    </form>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-medium mb-4">Cafes List</h3>
+                  <div className="space-y-4">
+                    {cafesList.map(cafe => (
+                      <div key={cafe.id} className="bg-white rounded-lg border shadow p-4">
+                        <div className="flex justify-between items-start">
+                          <h4 className="font-medium">{cafe.name}</h4>
+                          <div className="flex items-center">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              className="w-4 h-4 text-yellow-500 mr-1"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                            <span className="text-sm">{cafe.rating}</span>
+                          </div>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">{cafe.location}</p>
+                        <div className="flex justify-end space-x-2">
+                          <Button size="sm" variant="outline">
+                            Edit
+                          </Button>
+                          <Button size="sm" variant="destructive">
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="bookings">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-medium">Manage Booking Requests</h2>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="py-3 px-4 text-left">ID</th>
+                      <th className="py-3 px-4 text-left">Name</th>
+                      <th className="py-3 px-4 text-left">Email</th>
+                      <th className="py-3 px-4 text-left">Type</th>
+                      <th className="py-3 px-4 text-left">Date</th>
+                      <th className="py-3 px-4 text-left">Status</th>
+                      <th className="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bookingRequests.map(request => (
+                      <tr key={request.id} className="border-b hover:bg-gray-50">
+                        <td className="py-3 px-4">{request.id}</td>
+                        <td className="py-3 px-4">{request.name}</td>
+                        <td className="py-3 px-4">{request.email}</td>
+                        <td className="py-3 px-4">{request.type}</td>
+                        <td className="py-3 px-4">{request.date}</td>
+                        <td className="py-3 px-4">
+                          <span className={`px-2 py-1 text-xs rounded-full ${
+                            request.status === 'confirmed' 
+                              ? 'bg-green-100 text-green-800' 
+                              : request.status === 'pending'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            {request.status}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <div className="flex gap-2 justify-end">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleRespondToBooking(request.id)}
+                            >
+                              <Send className="h-4 w-4 mr-1" />
+                              Respond
+                            </Button>
+                            
+                            <Select
+                              defaultValue={request.status}
+                              onValueChange={(value) => handleUpdateBookingStatus(request.id, value)}
+                            >
+                              <SelectTrigger className="h-9 w-32">
+                                <SelectValue placeholder="Status" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="confirmed">Confirm</SelectItem>
+                                <SelectItem value="cancelled">Cancel</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </TabsContent>
+            
             <TabsContent value="settings">
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-xl font-medium mb-4">Site Configuration</h2>
+                  <h2 className="text-xl font-medium mb-4">Site Content</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Site Name</label>
-                      <input 
-                        type="text"
-                        className="w-full p-2 border rounded"
+                      <Label>Site Name</Label>
+                      <Input 
                         value={siteSettings.siteName}
                         onChange={(e) => setSiteSettings({...siteSettings, siteName: e.target.value})}
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Contact Email</label>
-                      <input 
+                      <Label>Contact Email</Label>
+                      <Input 
                         type="email"
-                        className="w-full p-2 border rounded"
                         value={siteSettings.contactEmail}
                         onChange={(e) => setSiteSettings({...siteSettings, contactEmail: e.target.value})}
                       />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Contact Phone</label>
-                      <input 
-                        type="text"
-                        className="w-full p-2 border rounded"
-                        value={siteSettings.contactPhone}
-                        onChange={(e) => setSiteSettings({...siteSettings, contactPhone: e.target.value})}
+                    <div className="space-y-2 md:col-span-2">
+                      <Label>Hero Title</Label>
+                      <Input 
+                        value={siteSettings.heroTitle}
+                        onChange={(e) => setSiteSettings({...siteSettings, heroTitle: e.target.value})}
                       />
+                      <p className="text-xs text-muted-foreground">This title appears at the top of your home page</p>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Logo URL</label>
-                      <input 
-                        type="text"
-                        className="w-full p-2 border rounded"
-                        value={siteSettings.logoUrl}
-                        onChange={(e) => setSiteSettings({...siteSettings, logoUrl: e.target.value})}
+                    <div className="space-y-2 md:col-span-2">
+                      <Label>Hero Description</Label>
+                      <Textarea 
+                        value={siteSettings.heroDescription}
+                        onChange={(e) => setSiteSettings({...siteSettings, heroDescription: e.target.value})}
                       />
                     </div>
                   </div>
+                  <div className="flex items-center space-x-2 mt-4">
+                    <Switch 
+                      id="show-cafe-map"
+                      checked={siteSettings.showCafeMap}
+                      onCheckedChange={(checked) => setSiteSettings({...siteSettings, showCafeMap: checked})}
+                    />
+                    <Label htmlFor="show-cafe-map">Show Cafe Map on Homepage</Label>
+                  </div>
                   <Button onClick={handleSiteSettingsUpdate} className="mt-4">
-                    Save Site Settings
+                    Save Site Content
                   </Button>
                 </div>
                 
                 <div className="pt-4 border-t">
-                  <h2 className="text-xl font-medium mb-4">Map Configuration</h2>
+                  <h2 className="text-xl font-medium mb-4">Email Settings</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Default Center Latitude</label>
-                      <input 
-                        type="text"
-                        className="w-full p-2 border rounded"
-                        defaultValue="35.616367"
-                      />
+                      <Label>Booking Notification Email</Label>
+                      <Input placeholder="Where booking notifications should be sent" />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Default Center Longitude</label>
-                      <input 
-                        type="text"
-                        className="w-full p-2 border rounded"
-                        defaultValue="-5.272562"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Default Zoom Level</label>
-                      <input 
-                        type="number"
-                        className="w-full p-2 border rounded"
-                        defaultValue="14"
-                        min="1"
-                        max="20"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Map Style</label>
-                      <select className="w-full p-2 border rounded">
-                        <option value="streets">Streets</option>
-                        <option value="satellite">Satellite</option>
-                        <option value="hybrid">Hybrid</option>
-                        <option value="light">Light</option>
-                        <option value="dark">Dark</option>
-                      </select>
+                      <Label>SMTP Server</Label>
+                      <Input placeholder="smtp.example.com" />
                     </div>
                   </div>
-                  <Button onClick={handleMapSettingsUpdate} className="mt-4">
-                    Save Map Settings
+                  <Button className="mt-4">
+                    Save Email Settings
                   </Button>
                 </div>
                 
@@ -566,19 +851,6 @@ const AdminDashboard = () => {
                       <p className="text-xs text-gray-400 mt-1">
                         Supports: JPG, PNG, MP4, WebM (Max: 10MB)
                       </p>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      <div className="relative group aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                        <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <Button variant="destructive" size="sm">Remove</Button>
-                        </div>
-                      </div>
-                      <div className="relative group aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                        <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <Button variant="destructive" size="sm">Remove</Button>
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </div>

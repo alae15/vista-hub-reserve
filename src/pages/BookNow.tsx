@@ -17,13 +17,94 @@ const BookNow = () => {
   const [endDate, setEndDate] = useState<Date | undefined>(
     new Date(new Date().setDate(new Date().getDate() + 3))
   );
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    guests: "",
+    bookingType: "",
+    specialRequests: ""
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleBooking = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: "Booking request received!",
-      description: "We'll get back to you shortly with confirmation.",
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormData({
+      ...formData,
+      [id]: value
     });
+  };
+
+  const handleSelectChange = (id: string, value: string) => {
+    setFormData({
+      ...formData,
+      [id]: value
+    });
+  };
+
+  const handleBooking = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      // Prepare the email data
+      const emailData = {
+        to: "admin@martistay.com", // Replace with your actual email
+        subject: `New Booking Request: ${formData.bookingType}`,
+        message: `
+          New booking request from ${formData.name}
+          
+          Contact Information:
+          - Email: ${formData.email}
+          - Phone: ${formData.phone}
+          
+          Booking Details:
+          - Type: ${formData.bookingType}
+          - Guests: ${formData.guests}
+          - Check-in: ${startDate ? format(startDate, "PPP") : "Not specified"}
+          - Check-out: ${endDate ? format(endDate, "PPP") : "Not specified"}
+          
+          Special Requests:
+          ${formData.specialRequests || "None"}
+        `
+      };
+      
+      // In a real implementation, this would send to an endpoint
+      console.log("Sending email with data:", emailData);
+      
+      // For demonstration, we'll simulate a successful email send
+      // In a production environment, you would:
+      // 1. Create a backend endpoint (using Supabase Edge Functions)
+      // 2. Use a service like SendGrid, AWS SES, or similar
+      
+      // Simulate api call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast({
+        title: "Booking request sent!",
+        description: "We'll contact you shortly with confirmation details.",
+      });
+      
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        guests: "",
+        bookingType: "",
+        specialRequests: ""
+      });
+      
+    } catch (error) {
+      console.error("Error sending booking email:", error);
+      toast({
+        title: "Something went wrong",
+        description: "Please try again or contact us directly.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -44,22 +125,41 @@ const BookNow = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" placeholder="Enter your full name" required />
+                  <Input 
+                    id="name" 
+                    placeholder="Enter your full name" 
+                    required 
+                    value={formData.name}
+                    onChange={handleInputChange}
+                  />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
-                  <Input id="email" type="email" placeholder="Enter your email" required />
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder="Enter your email" 
+                    required 
+                    value={formData.email}
+                    onChange={handleInputChange}
+                  />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
-                  <Input id="phone" placeholder="Enter your phone number" required />
+                  <Input 
+                    id="phone" 
+                    placeholder="Enter your phone number" 
+                    required 
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                  />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="guests">Number of Guests</Label>
-                  <Select>
+                  <Select onValueChange={(value) => handleSelectChange("guests", value)}>
                     <SelectTrigger id="guests">
                       <SelectValue placeholder="Select number of guests" />
                     </SelectTrigger>
@@ -68,14 +168,14 @@ const BookNow = () => {
                       <SelectItem value="2">2 Guests</SelectItem>
                       <SelectItem value="3">3 Guests</SelectItem>
                       <SelectItem value="4">4 Guests</SelectItem>
-                      <SelectItem value="5">5+ Guests</SelectItem>
+                      <SelectItem value="5+">5+ Guests</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 
                 <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="booking-type">What would you like to book?</Label>
-                  <Select>
+                  <Select onValueChange={(value) => handleSelectChange("bookingType", value)}>
                     <SelectTrigger id="booking-type">
                       <SelectValue placeholder="Select booking type" />
                     </SelectTrigger>
@@ -118,17 +218,23 @@ const BookNow = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="special-requests">Special Requests</Label>
+                <Label htmlFor="specialRequests">Special Requests</Label>
                 <Textarea
-                  id="special-requests"
+                  id="specialRequests"
                   placeholder="Any special requests or requirements..."
                   className="min-h-[120px]"
+                  value={formData.specialRequests}
+                  onChange={handleInputChange}
                 />
               </div>
               
-              <Button type="submit" className="w-full md:w-auto">
-                Submit Booking Request
+              <Button type="submit" className="w-full md:w-auto" disabled={isSubmitting}>
+                {isSubmitting ? "Submitting..." : "Submit Booking Request"}
               </Button>
+
+              <div className="text-sm text-muted-foreground mt-4">
+                <p>Your booking request will be sent directly to our team, and we'll contact you via email to confirm your reservation.</p>
+              </div>
             </form>
           </div>
         </div>
