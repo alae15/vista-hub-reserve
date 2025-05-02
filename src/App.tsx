@@ -13,6 +13,7 @@ import Restaurants from "./pages/Restaurants";
 import RestaurantDetail from "./pages/RestaurantDetail";
 import Admin from "./pages/Admin";
 import AdminDashboard from "./pages/AdminDashboard";
+import BookNow from "./pages/BookNow";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/restaurant/:id" element={<RestaurantDetail />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/book-now" element={<BookNow />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
