@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
 import { useData } from "@/contexts/DataContext";
-import CafeMap from "@/components/CafeMap";
+import CafeMap, { CafeMapCafe } from "@/components/CafeMap";
 
 const Home = () => {
   const { properties, cafes, mapSettings, siteSettings } = useData();
@@ -16,6 +16,18 @@ const Home = () => {
     const featured = properties.filter(property => property.featured);
     setFeaturedProperties(featured.length > 0 ? featured : properties.slice(0, 3));
   }, [properties]);
+
+  // Map cafes to CafeMapCafe type
+  const mapCafes: CafeMapCafe[] = cafes.map(cafe => ({
+    id: cafe.id,
+    name: cafe.name,
+    lat: cafe.lat,
+    lng: cafe.lng,
+    rating: cafe.rating,
+    description: cafe.description || "",
+    location: cafe.location || "",
+    image: cafe.image
+  }));
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -99,13 +111,7 @@ const Home = () => {
               showMarkers={mapSettings.showMarkers}
               centerLat={mapSettings.centerLat}
               centerLng={mapSettings.centerLng}
-              cafes={cafes.map(cafe => ({
-                name: cafe.name,
-                lat: cafe.lat,
-                lng: cafe.lng,
-                rating: cafe.rating,
-                description: cafe.description
-              }))}
+              cafes={mapCafes}
             />
           </section>
         )}

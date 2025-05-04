@@ -3,7 +3,7 @@ import { Coffee } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 
 // Make sure we're using a consistent Cafe type
-interface CafeMapCafe {
+export interface CafeMapCafe {
   id: number;
   name: string;
   lat: number;
@@ -51,7 +51,16 @@ const CafeMap = ({
     
     // Otherwise, try to use context cafes
     if (contextCafes && contextCafes.length > 0) {
-      return contextCafes as CafeMapCafe[];
+      return contextCafes.map(cafe => ({
+        id: cafe.id,
+        name: cafe.name,
+        lat: cafe.lat,
+        lng: cafe.lng,
+        rating: cafe.rating,
+        description: cafe.description || "",
+        location: cafe.location || "",
+        image: cafe.image
+      })) as CafeMapCafe[];
     }
     
     // Fallback to default cafes

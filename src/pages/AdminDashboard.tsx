@@ -11,7 +11,7 @@ import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Settings, FileImage, MapPin, Coffee, Edit, Mail, Send, Car, Utensils } from "lucide-react";
-import CafeMap from "@/components/CafeMap";
+import CafeMap, { CafeMapCafe } from "@/components/CafeMap";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -56,7 +56,7 @@ const AdminDashboard = () => {
   }, [allRestaurants]);
   
   // Initialize cafes state from context or localStorage
-  const [cafesList, setCafesList] = useState<Cafe[]>(() => {
+  const [cafesList, setCafesList] = useState(() => {
     if (allCafes && allCafes.length > 0) return allCafes;
     
     const savedCafes = localStorage.getItem('cafesList');
@@ -111,8 +111,8 @@ const AdminDashboard = () => {
   const [isAddPropertyOpen, setIsAddPropertyOpen] = useState(false);
   const [isEditPropertyOpen, setIsEditPropertyOpen] = useState(false);
   const [isDeletePropertyOpen, setIsDeletePropertyOpen] = useState(false);
-  const [currentProperty, setCurrentProperty] = useState<PropertyFormData | undefined>(undefined);
-  const [selectedCafe, setSelectedCafe] = useState<Cafe | null>(null);
+  const [currentProperty, setCurrentProperty] = useState(undefined);
+  const [selectedCafe, setSelectedCafe] = useState(null);
   const [isEditCafeOpen, setIsEditCafeOpen] = useState(false);
   
   // State for tabs
@@ -124,7 +124,7 @@ const AdminDashboard = () => {
   });
 
   // Form for editing cafe
-  const cafeForm = useForm<Cafe>({
+  const cafeForm = useForm({
     defaultValues: selectedCafe || {
       name: "",
       lat: 0,
@@ -273,20 +273,21 @@ const AdminDashboard = () => {
   };
   
   // Cafe operations
-  const handleCafeUpdate = (updatedCafes: any[]) => {
+  const handleCafeUpdate = (updatedCafes: CafeMapCafe[]) => {
     // Map the cafe data to our expected format
     const formattedCafes = updatedCafes.map((cafe, index) => ({
-      id: cafe.id || index + 1,
+      id: cafe.id,
       name: cafe.name,
-      lat: cafe.lat,
+      lat: cafe.lat, 
       lng: cafe.lng,
       rating: cafe.rating,
       description: cafe.description || "",
-      location: cafe.location || "Martil",
-      image: cafe.image || "/images/placeholder.svg"
+      location: cafe.location || "",
+      image: cafe.image
     }));
     
     setCafesList(formattedCafes);
+    updateCafes(formattedCafes);
     localStorage.setItem('cafesList', JSON.stringify(formattedCafes));
   };
   
@@ -408,6 +409,18 @@ const AdminDashboard = () => {
       description: `Property #${id} ${field} has been updated.`,
     });
   };
+  
+  // Map cafes to CafeMapCafe type for the CafeMap component
+  const mapCafes: CafeMapCafe[] = cafesList.map(cafe => ({
+    id: cafe.id,
+    name: cafe.name,
+    lat: cafe.lat, 
+    lng: cafe.lng,
+    rating: cafe.rating,
+    description: cafe.description || "",
+    location: cafe.location || "",
+    image: cafe.image
+  }));
   
   return (
     <div className="flex flex-col min-h-screen">
@@ -851,15 +864,9 @@ const AdminDashboard = () => {
                       showMarkers={mapSettings.showMarkers}
                       centerLat={mapSettings.centerLat}
                       centerLng={mapSettings.centerLng}
-                      cafes={cafesList.map(cafe => ({
-                        name: cafe.name,
-                        lat: cafe.lat,
-                        lng: cafe.lng,
-                        rating: cafe.rating,
-                        description: cafe.description
-                      }))}
+                      cafes={mapCafes}
                       onMarkerClick={(cafe) => {
-                        const fullCafe = cafesList.find(c => c.name === cafe.name);
+                        const fullCafe = cafesList.find(c => c.id === cafe.id);
                         if (fullCafe) {
                           setSelectedCafe(fullCafe);
                         }
