@@ -54,7 +54,7 @@ const CafeMap = ({
       // Otherwise, try to use context cafes
       if (contextCafes && contextCafes.length > 0) {
         return contextCafes.map(cafe => ({
-          id: typeof cafe.id === 'number' ? cafe.id : Math.random() * 1000,
+          id: typeof cafe.id === 'number' ? cafe.id : Math.floor(Math.random() * 1000),
           name: cafe.name,
           lat: cafe.lat,
           lng: cafe.lng,
@@ -117,15 +117,14 @@ const CafeMap = ({
   useEffect(() => {
     if (!mapContainerRef.current) return;
     
+    // Clean up function to handle component unmounting or re-rendering
+    const mapContainer = mapContainerRef.current;
+    
     const renderMap = () => {
       try {
-        const mapContainer = mapContainerRef.current;
         if (!mapContainer) return;
         
-        // Clear previous content
-        mapContainer.innerHTML = '';
-        
-        // Create main map container
+        // Create new elements instead of modifying existing ones
         const mapDiv = document.createElement('div');
         mapDiv.className = 'relative w-full h-full bg-gray-200 rounded-lg overflow-hidden';
         
@@ -155,26 +154,29 @@ const CafeMap = ({
         if (showMarkers && cafes && cafes.length > 0) {
           const markersContainer = document.createElement('div');
           markersContainer.className = 'absolute bottom-4 left-4 right-4 bg-white/90 p-2 rounded shadow-sm';
-          markersContainer.innerHTML = `
+          
+          let markersHTML = `
             <p class="text-sm font-medium mb-2">Top Cafes in Martil:</p>
             <div class="space-y-1 text-xs cafe-list">
-              ${cafes.map((cafe, index) => `
-                <div class="flex justify-between p-1 cursor-pointer hover:bg-gray-100 rounded cafe-item" 
-                     data-id="${cafe.id}" 
-                     data-name="${cafe.name}"
-                     data-rating="${cafe.rating}"
-                     data-description="${cafe.description || ''}"
-                >
-                  <span>${cafe.name}</span>
-                  <span>Rating: ${cafe.rating}/5</span>
-                </div>
-              `).join('')}
-            </div>
           `;
           
-          fakeMap.appendChild(markersContainer);
+          cafes.forEach(cafe => {
+            markersHTML += `
+              <div class="flex justify-between p-1 cursor-pointer hover:bg-gray-100 rounded cafe-item" 
+                   data-id="${cafe.id}" 
+                   data-name="${cafe.name}"
+                   data-rating="${cafe.rating}"
+                   data-description="${cafe.description || ''}"
+              >
+                <span>${cafe.name}</span>
+                <span>Rating: ${cafe.rating}/5</span>
+              </div>
+            `;
+          });
           
-          // We'll attach event handlers after adding to the DOM
+          markersHTML += `</div>`;
+          markersContainer.innerHTML = markersHTML;
+          fakeMap.appendChild(markersContainer);
         }
         
         // If a cafe is selected, show its details
@@ -199,42 +201,59 @@ const CafeMap = ({
         
         mapDiv.appendChild(fakeMap);
         mapDiv.appendChild(header);
+        
+        // Clear container and append new content
+        while (mapContainer.firstChild) {
+          mapContainer.removeChild(mapContainer.firstChild);
+        }
+        
         mapContainer.appendChild(mapDiv);
         
         // Now add event listeners after the elements are in the DOM
         setTimeout(() => {
-          const cafeList = mapContainer.querySelector('.cafe-list');
-          if (cafeList) {
-            const cafeItems = cafeList.querySelectorAll('.cafe-item');
-            cafeItems.forEach(item => {
-              if (item instanceof HTMLElement) {
-                item.addEventListener('click', () => {
-                  const id = Number(item.dataset.id);
-                  const selectedCafe = cafes.find(cafe => cafe.id === id);
-                  if (selectedCafe) {
-                    handleMarkerClick(selectedCafe);
-                  }
-                });
-              }
-            });
-          }
+          if (!mapContainer) return;
+          
+          const cafeItems = mapContainer.querySelectorAll('.cafe-item');
+          
+          cafeItems.forEach(item => {
+            if (item instanceof HTMLElement) {
+              item.addEventListener('click', () => {
+                const id = Number(item.dataset.id);
+                const selectedCafe = cafes.find(cafe => cafe.id === id);
+                if (selectedCafe) {
+                  handleMarkerClick(selectedCafe);
+                }
+              });
+            }
+          });
+          
+          setMapLoaded(true);
         }, 0);
         
-        setMapLoaded(true);
       } catch (error) {
         console.error("Error rendering map:", error);
         // Create a basic error display
-        if (mapContainerRef.current) {
-          mapContainerRef.current.innerHTML = '<div class="h-full flex items-center justify-center bg-gray-100"><p>Error loading map. Please try again.</p></div>';
+        if (mapContainer) {
+          mapContainer.innerHTML = '<div class="h-full flex items-center justify-center bg-gray-100"><p>Error loading map. Please try again.</p></div>';
+          setMapLoaded(true); // Still mark as loaded to avoid loading state
         }
-        setMapLoaded(true); // Still mark as loaded to avoid loading state
       }
     };
     
-    // Render the map and clean up previous event listeners
+    // Render the map
     renderMap();
     
-  }, [mapStyle, zoomLevel, showMarkers, centerLat, centerLng, cafes, selectedCafe, handleMarkerClick]);
+    // Cleanup function
+    return () => {
+      if (mapContainer) {
+        // Remove event listeners by replacing inner HTML
+        const tempNode = mapContainer.cloneNode(false);
+        if (mapContainer.parentNode) {
+          mapContainer.parentNode.replaceChild(tempNode, mapContainer);
+        }
+      }
+    };
+  }, [mapStyle, zoomLevel, showMarkers, centerLat, centerLng, cafes, selectedCafe]);
 
   return (
     <div 
