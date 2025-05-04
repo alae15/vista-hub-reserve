@@ -1,4 +1,3 @@
-
 import { useRef, useEffect, useState } from "react";
 import { Coffee } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
@@ -114,146 +113,10 @@ const CafeMap = ({
     setCafes([...cafes, newCafe]);
   };
 
+  // Set map as loaded after component mounts
   useEffect(() => {
-    if (!mapContainerRef.current) return;
-    
-    // Clean up function to handle component unmounting or re-rendering
-    const mapContainer = mapContainerRef.current;
-    
-    const renderMap = () => {
-      try {
-        if (!mapContainer) return;
-        
-        // Create new elements instead of modifying existing ones
-        const mapDiv = document.createElement('div');
-        mapDiv.className = 'relative w-full h-full bg-gray-200 rounded-lg overflow-hidden';
-        
-        // Create a header with map info
-        const header = document.createElement('div');
-        header.className = 'absolute top-0 left-0 right-0 bg-white/80 p-2 z-10 flex justify-between items-center';
-        header.innerHTML = `
-          <div>
-            <span class="font-medium">Martil Cafes</span>
-            <span class="text-xs ml-2 text-muted-foreground">Zoom: ${zoomLevel}</span>
-          </div>
-          <div class="text-xs text-muted-foreground">${mapStyle} view</div>
-        `;
-        
-        // Create a map element
-        const fakeMap = document.createElement('div');
-        fakeMap.className = 'absolute inset-0 flex items-center justify-center text-center';
-        fakeMap.innerHTML = `
-          <div>
-            <p class="text-muted-foreground mb-2">Interactive Map Centered at:</p>
-            <p class="font-mono text-sm mb-4">Lat: ${centerLat.toFixed(6)}, Lng: ${centerLng.toFixed(6)}</p>
-            <p class="text-xs text-muted-foreground">Note: This is a placeholder. In a real implementation,<br>this would be an interactive Mapbox or Google Maps component.</p>
-          </div>
-        `;
-        
-        // If markers are enabled, add cafe markers
-        if (showMarkers && cafes && cafes.length > 0) {
-          const markersContainer = document.createElement('div');
-          markersContainer.className = 'absolute bottom-4 left-4 right-4 bg-white/90 p-2 rounded shadow-sm';
-          
-          let markersHTML = `
-            <p class="text-sm font-medium mb-2">Top Cafes in Martil:</p>
-            <div class="space-y-1 text-xs cafe-list">
-          `;
-          
-          cafes.forEach(cafe => {
-            markersHTML += `
-              <div class="flex justify-between p-1 cursor-pointer hover:bg-gray-100 rounded cafe-item" 
-                   data-id="${cafe.id}" 
-                   data-name="${cafe.name}"
-                   data-rating="${cafe.rating}"
-                   data-description="${cafe.description || ''}"
-              >
-                <span>${cafe.name}</span>
-                <span>Rating: ${cafe.rating}/5</span>
-              </div>
-            `;
-          });
-          
-          markersHTML += `</div>`;
-          markersContainer.innerHTML = markersHTML;
-          fakeMap.appendChild(markersContainer);
-        }
-        
-        // If a cafe is selected, show its details
-        if (selectedCafe) {
-          const detailsContainer = document.createElement('div');
-          detailsContainer.className = 'absolute top-14 left-4 right-4 bg-white p-3 rounded shadow-sm';
-          detailsContainer.innerHTML = `
-            <div class="flex justify-between items-start">
-              <h3 class="font-medium">${selectedCafe.name}</h3>
-              <div class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-yellow-500 mr-1">
-                  <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
-                </svg>
-                <span>${selectedCafe.rating}</span>
-              </div>
-            </div>
-            <p class="text-sm mt-1">${selectedCafe.description || ''}</p>
-            <p class="text-xs text-muted-foreground mt-2">Location: ${selectedCafe.location || ''}</p>
-          `;
-          fakeMap.appendChild(detailsContainer);
-        }
-        
-        mapDiv.appendChild(fakeMap);
-        mapDiv.appendChild(header);
-        
-        // Clear container and append new content
-        while (mapContainer.firstChild) {
-          mapContainer.removeChild(mapContainer.firstChild);
-        }
-        
-        mapContainer.appendChild(mapDiv);
-        
-        // Now add event listeners after the elements are in the DOM
-        setTimeout(() => {
-          if (!mapContainer) return;
-          
-          const cafeItems = mapContainer.querySelectorAll('.cafe-item');
-          
-          cafeItems.forEach(item => {
-            if (item instanceof HTMLElement) {
-              item.addEventListener('click', () => {
-                const id = Number(item.dataset.id);
-                const selectedCafe = cafes.find(cafe => cafe.id === id);
-                if (selectedCafe) {
-                  handleMarkerClick(selectedCafe);
-                }
-              });
-            }
-          });
-          
-          setMapLoaded(true);
-        }, 0);
-        
-      } catch (error) {
-        console.error("Error rendering map:", error);
-        // Create a basic error display
-        if (mapContainer) {
-          mapContainer.innerHTML = '<div class="h-full flex items-center justify-center bg-gray-100"><p>Error loading map. Please try again.</p></div>';
-          setMapLoaded(true); // Still mark as loaded to avoid loading state
-        }
-      }
-    };
-    
-    // Render the map
-    renderMap();
-    
-    // Cleanup function
-    return () => {
-      if (mapContainer) {
-        // Remove event listeners by replacing inner HTML
-        const tempNode = mapContainer.cloneNode(false);
-        if (mapContainer.parentNode) {
-          mapContainer.parentNode.replaceChild(tempNode, mapContainer);
-        }
-      }
-    };
-  }, [mapStyle, zoomLevel, showMarkers, centerLat, centerLng, cafes, selectedCafe]);
+    setMapLoaded(true);
+  }, []);
 
   return (
     <div 
@@ -262,12 +125,70 @@ const CafeMap = ({
       style={{ height }}
       data-state={mapLoaded ? "loaded" : "loading"}
     >
-      {!mapLoaded && (
+      {!mapLoaded ? (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
           <p>Loading map...</p>
         </div>
+      ) : (
+        <div className="relative w-full h-full bg-gray-200 rounded-lg overflow-hidden">
+          {/* Header with map info */}
+          <div className="absolute top-0 left-0 right-0 bg-white/80 p-2 z-10 flex justify-between items-center">
+            <div>
+              <span className="font-medium">Martil Cafes</span>
+              <span className="text-xs ml-2 text-muted-foreground">Zoom: {zoomLevel}</span>
+            </div>
+            <div className="text-xs text-muted-foreground">{mapStyle} view</div>
+          </div>
+
+          {/* Map placeholder */}
+          <div className="absolute inset-0 flex items-center justify-center text-center">
+            <div>
+              <p className="text-muted-foreground mb-2">Interactive Map Centered at:</p>
+              <p className="font-mono text-sm mb-4">Lat: {centerLat.toFixed(6)}, Lng: {centerLng.toFixed(6)}</p>
+              <p className="text-xs text-muted-foreground">Note: This is a placeholder. In a real implementation,<br />this would be an interactive Mapbox or Google Maps component.</p>
+            </div>
+          </div>
+
+          {/* Cafe markers */}
+          {showMarkers && cafes && cafes.length > 0 && (
+            <div className="absolute bottom-4 left-4 right-4 bg-white/90 p-2 rounded shadow-sm">
+              <p className="text-sm font-medium mb-2">Top Cafes in Martil:</p>
+              <div className="space-y-1 text-xs">
+                {cafes.map((cafe) => (
+                  <div 
+                    key={cafe.id}
+                    className="flex justify-between p-1 cursor-pointer hover:bg-gray-100 rounded"
+                    onClick={() => handleMarkerClick(cafe)}
+                  >
+                    <span>{cafe.name}</span>
+                    <span>Rating: {cafe.rating}/5</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Selected cafe details */}
+          {selectedCafe && (
+            <div className="absolute top-14 left-4 right-4 bg-white p-3 rounded shadow-sm">
+              <div className="flex justify-between items-start">
+                <h3 className="font-medium">{selectedCafe.name}</h3>
+                <div className="flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-yellow-500 mr-1">
+                    <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clipRule="evenodd" />
+                  </svg>
+                  <span>{selectedCafe.rating}</span>
+                </div>
+              </div>
+              <p className="text-sm mt-1">{selectedCafe.description || ''}</p>
+              <p className="text-xs text-muted-foreground mt-2">Location: {selectedCafe.location || ''}</p>
+            </div>
+          )}
+        </div>
       )}
-      {isEditable && (
+
+      {/* Add cafe button */}
+      {isEditable && mapLoaded && (
         <div className="absolute top-14 right-2 z-20">
           <button 
             className="bg-white rounded-full p-2 shadow-md hover:bg-gray-100"

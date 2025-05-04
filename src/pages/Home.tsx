@@ -20,12 +20,12 @@ const Home = () => {
   // Map cafes to CafeMapCafe type ensuring all required fields exist
   const mapCafes: CafeMapCafe[] = cafes.map(cafe => ({
     id: typeof cafe.id === 'number' ? cafe.id : Math.floor(Math.random() * 10000),
-    name: cafe.name,
-    lat: cafe.lat,
-    lng: cafe.lng,
-    rating: cafe.rating,
+    name: cafe.name || "Unnamed Cafe",
+    lat: cafe.lat || 35.616367,
+    lng: cafe.lng || -5.272562,
+    rating: cafe.rating || 4.0,
     description: cafe.description || "",
-    location: cafe.location || "",
+    location: cafe.location || "Martil",
     image: cafe.image || ""
   }));
 
@@ -41,10 +41,10 @@ const Home = () => {
           <div className="container mx-auto px-4 lg:px-8 absolute inset-0 z-20 flex items-center">
             <div className="max-w-xl text-white">
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                {siteSettings.heroTitle}
+                {siteSettings?.heroTitle || "Welcome to MartiStay"}
               </h1>
               <p className="text-lg md:text-xl mb-8">
-                {siteSettings.heroDescription}
+                {siteSettings?.heroDescription || "Your perfect vacation in Martil, Morocco starts here"}
               </p>
               <div className="space-x-4">
                 <Link 
@@ -96,7 +96,7 @@ const Home = () => {
         </section>
         
         {/* Cafe Map Section */}
-        {siteSettings.showCafeMap && (
+        {(!siteSettings || siteSettings.showCafeMap !== false) && (
           <section className="container mx-auto px-4 py-16">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl md:text-3xl font-bold text-martil-navy">
@@ -105,21 +105,15 @@ const Home = () => {
             </div>
             
             <div className="min-h-[500px]">
-              {mapCafes.length > 0 ? (
-                <CafeMap 
-                  height="500px"
-                  mapStyle={mapSettings.mapStyle}
-                  zoomLevel={mapSettings.zoomLevel}
-                  showMarkers={mapSettings.showMarkers}
-                  centerLat={mapSettings.centerLat}
-                  centerLng={mapSettings.centerLng}
-                  cafes={mapCafes}
-                />
-              ) : (
-                <div className="bg-gray-100 rounded-lg p-4 text-center h-[500px] flex items-center justify-center">
-                  <p>No cafes available to display. Add some cafes to see them on the map!</p>
-                </div>
-              )}
+              <CafeMap 
+                height="500px"
+                mapStyle={mapSettings?.mapStyle || "streets"}
+                zoomLevel={mapSettings?.zoomLevel || 14}
+                showMarkers={mapSettings?.showMarkers !== false}
+                centerLat={mapSettings?.centerLat || 35.616367}
+                centerLng={mapSettings?.centerLng || -5.272562}
+                cafes={mapCafes.length > 0 ? mapCafes : undefined}
+              />
             </div>
           </section>
         )}
