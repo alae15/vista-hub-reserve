@@ -12,7 +12,7 @@ import { DeleteConfirmation } from "@/components/DeleteConfirmation";
 import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Settings, FileImage, MapPin, PenTool, Globe, Car, Utensils, Coffee, Edit, Mail, Send } from "lucide-react";
+import { Settings, FileImage, MapPin, Coffee, Edit, Mail, Send, Car, Utensils } from "lucide-react";
 import CafeMap from "@/components/CafeMap";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +21,17 @@ import { Switch } from "@/components/ui/switch";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
+
+interface Cafe {
+  id?: number;
+  name: string;
+  lat: number;
+  lng: number;
+  rating: number;
+  location?: string;
+  image?: string;
+  description?: string;
+}
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -42,14 +53,14 @@ const AdminDashboard = () => {
     return savedRestaurants ? JSON.parse(savedRestaurants) : restaurants;
   });
   
-  const [cafesList, setCafesList] = useState(() => {
+  const [cafesList, setCafesList] = useState<Cafe[]>(() => {
     const savedCafes = localStorage.getItem('cafesList');
     return savedCafes ? JSON.parse(savedCafes) : [
-      { id: 1, name: "Cafe Maroc", location: "Downtown Martil", rating: 4.8, image: "/images/cafe1.jpg" },
-      { id: 2, name: "Beach Coffee", location: "Martil Beach", rating: 4.6, image: "/images/cafe2.jpg" },
-      { id: 3, name: "Sunset Cafe", location: "West Martil", rating: 4.9, image: "/images/cafe3.jpg" },
-      { id: 4, name: "Martil Espresso", location: "City Center", rating: 4.7, image: "/images/cafe4.jpg" },
-      { id: 5, name: "Ocean View Coffee", location: "Coastal Road", rating: 4.5, image: "/images/cafe5.jpg" },
+      { id: 1, name: "Cafe Maroc", location: "Downtown Martil", rating: 4.8, image: "/images/cafe1.jpg", lat: 35.615367, lng: -5.271562, description: "Best traditional Moroccan coffee" },
+      { id: 2, name: "Beach Coffee", location: "Martil Beach", rating: 4.6, image: "/images/cafe2.jpg", lat: 35.617367, lng: -5.273562, description: "Amazing views with great espresso" },
+      { id: 3, name: "Sunset Cafe", location: "West Martil", rating: 4.9, image: "/images/cafe3.jpg", lat: 35.614567, lng: -5.274562, description: "Perfect place to watch the sunset" },
+      { id: 4, name: "Martil Espresso", location: "City Center", rating: 4.7, image: "/images/cafe4.jpg", lat: 35.618367, lng: -5.270562, description: "Specialty coffee and pastries" },
+      { id: 5, name: "Ocean View Coffee", location: "Coastal Road", rating: 4.5, image: "/images/cafe5.jpg", lat: 35.613367, lng: -5.275562, description: "Fresh sea breeze and fresh coffee" },
     ];
   });
   
@@ -96,6 +107,8 @@ const AdminDashboard = () => {
   const [isEditPropertyOpen, setIsEditPropertyOpen] = useState(false);
   const [isDeletePropertyOpen, setIsDeletePropertyOpen] = useState(false);
   const [currentProperty, setCurrentProperty] = useState<PropertyFormData | undefined>(undefined);
+  const [selectedCafe, setSelectedCafe] = useState<Cafe | null>(null);
+  const [isEditCafeOpen, setIsEditCafeOpen] = useState(false);
   
   // State for tabs
   const [activeTab, setActiveTab] = useState("properties");
@@ -103,6 +116,17 @@ const AdminDashboard = () => {
   // Form for map settings
   const mapForm = useForm({
     defaultValues: mapSettings
+  });
+
+  // Form for editing cafe
+  const cafeForm = useForm<Cafe>({
+    defaultValues: selectedCafe || {
+      name: "",
+      lat: 0,
+      lng: 0,
+      rating: 0,
+      description: ""
+    }
   });
 
   // Save data to localStorage whenever it changes
@@ -134,6 +158,13 @@ const AdminDashboard = () => {
     localStorage.setItem('bookingRequests', JSON.stringify(bookingRequests));
   }, [bookingRequests]);
   
+  // Reset cafe form when selected cafe changes
+  useEffect(() => {
+    if (selectedCafe) {
+      cafeForm.reset(selectedCafe);
+    }
+  }, [selectedCafe, cafeForm]);
+  
   // Apply map settings
   const handleMapSettingsUpdate = (values: typeof mapSettings) => {
     setMapSettings(values);
@@ -153,6 +184,7 @@ const AdminDashboard = () => {
   
   // Update site content
   const handleSiteSettingsUpdate = () => {
+    localStorage.setItem('siteSettings', JSON.stringify(siteSettings));
     toast({
       title: "Settings updated",
       description: "Your site content has been updated successfully.",
@@ -174,7 +206,10 @@ const AdminDashboard = () => {
       description: "",
       featured: false
     };
-    setPropertiesList([...propertiesList, newProperty]);
+    const updatedProperties = [...propertiesList, newProperty];
+    setPropertiesList(updatedProperties);
+    localStorage.setItem('properties', JSON.stringify(updatedProperties));
+    
     toast({
       title: "Property added",
       description: "The property has been added successfully.",
@@ -198,6 +233,8 @@ const AdminDashboard = () => {
     );
     
     setPropertiesList(updatedProperties);
+    localStorage.setItem('properties', JSON.stringify(updatedProperties));
+    
     toast({
       title: "Property updated",
       description: "The property has been updated successfully.",
@@ -210,6 +247,8 @@ const AdminDashboard = () => {
     );
     
     setPropertiesList(updatedProperties);
+    localStorage.setItem('properties', JSON.stringify(updatedProperties));
+    
     toast({
       title: featured ? "Property featured" : "Property unfeatured",
       description: `Property #${id} has been ${featured ? "added to" : "removed from"} featured properties.`,
@@ -224,6 +263,7 @@ const AdminDashboard = () => {
     );
     
     setPropertiesList(updatedProperties);
+    localStorage.setItem('properties', JSON.stringify(updatedProperties));
     setIsDeletePropertyOpen(false);
     
     toast({
@@ -233,13 +273,83 @@ const AdminDashboard = () => {
     });
   };
   
+  // Cafe operations
+  const handleCafeUpdate = (updatedCafes: any[]) => {
+    // Map the cafe data to our expected format
+    const formattedCafes = updatedCafes.map((cafe, index) => ({
+      id: cafe.id || index + 1,
+      name: cafe.name,
+      lat: cafe.lat,
+      lng: cafe.lng,
+      rating: cafe.rating,
+      description: cafe.description || "",
+      location: cafe.location || "Martil",
+      image: cafe.image || "/images/placeholder.svg"
+    }));
+    
+    setCafesList(formattedCafes);
+    localStorage.setItem('cafesList', JSON.stringify(formattedCafes));
+  };
+  
+  const handleAddCafe = () => {
+    const newCafe = {
+      id: cafesList.length + 1,
+      name: "New Cafe",
+      lat: mapSettings.centerLat + (Math.random() - 0.5) * 0.01,
+      lng: mapSettings.centerLng + (Math.random() - 0.5) * 0.01,
+      rating: 4.0,
+      description: "Add a description",
+      location: "Martil",
+      image: "/images/placeholder.svg"
+    };
+    
+    const updatedCafes = [...cafesList, newCafe];
+    setCafesList(updatedCafes);
+    localStorage.setItem('cafesList', JSON.stringify(updatedCafes));
+    
+    toast({
+      title: "Cafe added",
+      description: "A new cafe has been added to the list.",
+    });
+  };
+  
+  const handleEditCafe = (data: Cafe) => {
+    if (!selectedCafe) return;
+    
+    const updatedCafes = cafesList.map(cafe => 
+      cafe.id === selectedCafe.id ? { ...data, id: selectedCafe.id } : cafe
+    );
+    
+    setCafesList(updatedCafes);
+    localStorage.setItem('cafesList', JSON.stringify(updatedCafes));
+    setIsEditCafeOpen(false);
+    
+    toast({
+      title: "Cafe updated",
+      description: `${data.name} has been updated successfully.`,
+    });
+  };
+  
+  const handleDeleteCafe = (id: number) => {
+    const updatedCafes = cafesList.filter(cafe => cafe.id !== id);
+    setCafesList(updatedCafes);
+    localStorage.setItem('cafesList', JSON.stringify(updatedCafes));
+    
+    toast({
+      title: "Cafe deleted",
+      description: "The cafe has been deleted successfully.",
+      variant: "destructive",
+    });
+  };
+  
   // Booking request management
   const handleUpdateBookingStatus = (id: number, status: string) => {
-    setBookingRequests(requests => 
-      requests.map(request => 
-        request.id === id ? {...request, status} : request
-      )
+    const updatedRequests = bookingRequests.map(request => 
+      request.id === id ? {...request, status} : request
     );
+    
+    setBookingRequests(updatedRequests);
+    localStorage.setItem('bookingRequests', JSON.stringify(updatedRequests));
     
     toast({
       title: "Status updated",
@@ -269,23 +379,6 @@ const AdminDashboard = () => {
       variant: "destructive",
     });
   };
-
-  // Add a new cafe
-  const handleAddCafe = () => {
-    const newCafe = {
-      id: cafesList.length + 1,
-      name: "New Cafe",
-      location: "Martil",
-      rating: 4.0,
-      image: "/images/placeholder.svg"
-    };
-    
-    setCafesList([...cafesList, newCafe]);
-    toast({
-      title: "Cafe added",
-      description: "A new cafe has been added to the list.",
-    });
-  };
   
   // Respond to an email booking request
   const handleRespondToBooking = (id: number) => {
@@ -300,6 +393,21 @@ const AdminDashboard = () => {
     
     // Update the status to responded
     handleUpdateBookingStatus(id, "responded");
+  };
+  
+  // Update property description and other details
+  const handlePropertyDetailUpdate = (id: number, field: string, value: any) => {
+    const updatedProperties = propertiesList.map(property => 
+      property.id === id ? { ...property, [field]: value } : property
+    );
+    
+    setPropertiesList(updatedProperties);
+    localStorage.setItem('properties', JSON.stringify(updatedProperties));
+    
+    toast({
+      title: "Property updated",
+      description: `Property #${id} ${field} has been updated.`,
+    });
   };
   
   return (
@@ -442,10 +550,28 @@ const AdminDashboard = () => {
                             className="w-16 h-12 object-cover rounded"
                           />
                         </td>
-                        <td className="py-3 px-4">{property.title}</td>
+                        <td className="py-3 px-4">
+                          <input 
+                            type="text" 
+                            value={property.title}
+                            onChange={(e) => handlePropertyDetailUpdate(property.id, 'title', e.target.value)}
+                            className="border-b border-dashed border-gray-300 bg-transparent px-1 w-full focus:outline-none focus:border-primary"
+                          />
+                        </td>
                         <td className="py-3 px-4">{property.location}</td>
                         <td className="py-3 px-4">{property.type}</td>
-                        <td className="py-3 px-4">${property.price}/night</td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center">
+                            $
+                            <input 
+                              type="number" 
+                              value={property.price}
+                              onChange={(e) => handlePropertyDetailUpdate(property.id, 'price', parseInt(e.target.value))}
+                              className="border-b border-dashed border-gray-300 bg-transparent px-1 w-20 focus:outline-none focus:border-primary"
+                            />
+                            <span className="text-sm text-muted-foreground">/night</span>
+                          </div>
+                        </td>
                         <td className="py-3 px-4">
                           <Switch 
                             checked={property.featured} 
@@ -517,6 +643,71 @@ const AdminDashboard = () => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+              
+              {/* Property Description Editor */}
+              <div className="mt-8">
+                <h3 className="text-lg font-medium mb-4">Property Descriptions</h3>
+                <div className="space-y-4">
+                  {propertiesList.map(property => (
+                    <div key={`desc-${property.id}`} className="bg-gray-50 p-4 rounded-lg border">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-medium">{property.title}</h4>
+                        <div className="text-sm text-muted-foreground">ID: {property.id}</div>
+                      </div>
+                      <Textarea 
+                        value={property.description || ''}
+                        onChange={(e) => handlePropertyDetailUpdate(property.id, 'description', e.target.value)}
+                        placeholder="Enter property description..."
+                        className="min-h-[100px]"
+                      />
+                      <div className="mt-4">
+                        <div className="text-sm font-medium mb-2">Amenities (comma-separated)</div>
+                        <Input
+                          value={property.amenities?.join(', ') || ''}
+                          onChange={(e) => handlePropertyDetailUpdate(
+                            property.id, 
+                            'amenities', 
+                            e.target.value.split(',').map(item => item.trim())
+                          )}
+                          placeholder="WiFi, Pool, Parking, etc."
+                        />
+                      </div>
+                      <div className="grid grid-cols-3 gap-4 mt-4">
+                        <div>
+                          <Label htmlFor={`beds-${property.id}`}>Beds</Label>
+                          <Input
+                            id={`beds-${property.id}`}
+                            type="number"
+                            value={property.beds || 0}
+                            onChange={(e) => handlePropertyDetailUpdate(property.id, 'beds', parseInt(e.target.value))}
+                            min="0"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor={`baths-${property.id}`}>Baths</Label>
+                          <Input
+                            id={`baths-${property.id}`}
+                            type="number"
+                            value={property.baths || 0}
+                            onChange={(e) => handlePropertyDetailUpdate(property.id, 'baths', parseInt(e.target.value))}
+                            min="0"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor={`guests-${property.id}`}>Guests</Label>
+                          <Input
+                            id={`guests-${property.id}`}
+                            type="number"
+                            value={property.guests || 0}
+                            onChange={(e) => handlePropertyDetailUpdate(property.id, 'guests', parseInt(e.target.value))}
+                            min="0"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </TabsContent>
             
@@ -661,6 +852,21 @@ const AdminDashboard = () => {
                       showMarkers={mapSettings.showMarkers}
                       centerLat={mapSettings.centerLat}
                       centerLng={mapSettings.centerLng}
+                      cafes={cafesList.map(cafe => ({
+                        name: cafe.name,
+                        lat: cafe.lat,
+                        lng: cafe.lng,
+                        rating: cafe.rating,
+                        description: cafe.description
+                      }))}
+                      onMarkerClick={(cafe) => {
+                        const fullCafe = cafesList.find(c => c.name === cafe.name);
+                        if (fullCafe) {
+                          setSelectedCafe(fullCafe);
+                        }
+                      }}
+                      isEditable={true}
+                      onCafeUpdate={handleCafeUpdate}
                     />
                   </div>
                   
@@ -759,17 +965,112 @@ const AdminDashboard = () => {
                           </div>
                         </div>
                         <p className="text-sm text-muted-foreground mb-2">{cafe.location}</p>
+                        <p className="text-sm mb-3">{cafe.description || 'No description available.'}</p>
+                        <div className="text-xs text-muted-foreground mb-2">
+                          Location: {cafe.lat.toFixed(6)}, {cafe.lng.toFixed(6)}
+                        </div>
                         <div className="flex justify-end space-x-2">
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedCafe(cafe);
+                              setIsEditCafeOpen(true);
+                            }}
+                          >
                             Edit
                           </Button>
-                          <Button size="sm" variant="destructive">
+                          <Button 
+                            size="sm" 
+                            variant="destructive"
+                            onClick={() => handleDeleteCafe(cafe.id as number)}
+                          >
                             Delete
                           </Button>
                         </div>
                       </div>
                     ))}
                   </div>
+                  
+                  {/* Edit Cafe Dialog */}
+                  <Dialog open={isEditCafeOpen} onOpenChange={setIsEditCafeOpen}>
+                    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+                      <div className="bg-white rounded-lg w-full max-w-md p-6">
+                        <h2 className="text-xl font-semibold mb-4">Edit Cafe</h2>
+                        <form onSubmit={cafeForm.handleSubmit(handleEditCafe)} className="space-y-4">
+                          <div>
+                            <Label htmlFor="name">Name</Label>
+                            <Input
+                              id="name"
+                              {...cafeForm.register('name')}
+                              defaultValue={selectedCafe?.name}
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="location">Location</Label>
+                            <Input
+                              id="location"
+                              {...cafeForm.register('location')}
+                              defaultValue={selectedCafe?.location}
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="description">Description</Label>
+                            <Textarea
+                              id="description"
+                              {...cafeForm.register('description')}
+                              defaultValue={selectedCafe?.description}
+                              rows={3}
+                            />
+                          </div>
+                          
+                          <div className="grid grid-cols-3 gap-4">
+                            <div>
+                              <Label htmlFor="rating">Rating (0-5)</Label>
+                              <Input
+                                id="rating"
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                max="5"
+                                {...cafeForm.register('rating')}
+                                defaultValue={selectedCafe?.rating}
+                              />
+                            </div>
+                            
+                            <div>
+                              <Label htmlFor="lat">Latitude</Label>
+                              <Input
+                                id="lat"
+                                type="number"
+                                step="0.000001"
+                                {...cafeForm.register('lat')}
+                                defaultValue={selectedCafe?.lat}
+                              />
+                            </div>
+                            
+                            <div>
+                              <Label htmlFor="lng">Longitude</Label>
+                              <Input
+                                id="lng"
+                                type="number"
+                                step="0.000001"
+                                {...cafeForm.register('lng')}
+                                defaultValue={selectedCafe?.lng}
+                              />
+                            </div>
+                          </div>
+                          
+                          <div className="flex justify-end space-x-2 pt-4">
+                            <Button type="button" variant="outline" onClick={() => setIsEditCafeOpen(false)}>Cancel</Button>
+                            <Button type="submit">Save Changes</Button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </Dialog>
                 </div>
               </div>
             </TabsContent>
@@ -898,14 +1199,18 @@ const AdminDashboard = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Booking Notification Email</Label>
-                      <Input placeholder="Where booking notifications should be sent" />
+                      <Input 
+                        placeholder="Where booking notifications should be sent"
+                        value={siteSettings.contactEmail}
+                        onChange={(e) => setSiteSettings({...siteSettings, contactEmail: e.target.value})}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label>SMTP Server</Label>
                       <Input placeholder="smtp.example.com" />
                     </div>
                   </div>
-                  <Button className="mt-4">
+                  <Button className="mt-4" onClick={handleSiteSettingsUpdate}>
                     Save Email Settings
                   </Button>
                 </div>

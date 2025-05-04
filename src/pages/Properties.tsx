@@ -5,14 +5,36 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SearchFilters from "@/components/SearchFilters";
 import PropertyCard from "@/components/PropertyCard";
-import { properties } from "@/data/mockData";
 import { Button } from "@/components/ui/button";
 import { Grid3X3, List } from "lucide-react";
 
 const Properties = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [filteredProperties, setFilteredProperties] = useState(properties);
+  const [filteredProperties, setFilteredProperties] = useState([]);
   const location = useLocation();
+  
+  // Load properties from localStorage
+  const [properties, setProperties] = useState(() => {
+    const savedProperties = localStorage.getItem('properties');
+    return savedProperties ? JSON.parse(savedProperties) : [];
+  });
+  
+  // Listen for changes in localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const savedProperties = localStorage.getItem('properties');
+      if (savedProperties) {
+        setProperties(JSON.parse(savedProperties));
+      }
+    };
+    
+    // Listen for storage events (when other tabs/windows update localStorage)
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   useEffect(() => {
     // Parse query params when the page loads or URL changes
@@ -49,7 +71,7 @@ const Properties = () => {
     } else {
       setFilteredProperties(properties);
     }
-  }, [location.search]);
+  }, [location.search, properties]);
 
   const handleSearch = (filters: any) => {
     // Apply filters to the properties
