@@ -19,6 +19,7 @@ import { Switch } from "@/components/ui/switch";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
+import { useData } from "@/contexts/DataContext";
 
 interface Cafe {
   id?: number;
@@ -34,24 +35,30 @@ interface Cafe {
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { properties: allProperties, vehicles: allVehicles, restaurants: allRestaurants, cafes: allCafes, updateProperties, updateVehicles, updateRestaurants, updateCafes } = useData();
   
-  // Initialize states with localStorage data if available
-  const [propertiesList, setPropertiesList] = useState(() => {
-    const savedProperties = localStorage.getItem('properties');
-    return savedProperties ? JSON.parse(savedProperties) : properties;
-  });
+  // Initialize states with context data
+  const [propertiesList, setPropertiesList] = useState(allProperties || []);
+  const [vehiclesList, setVehiclesList] = useState(allVehicles || []);
+  const [restaurantsList, setRestaurantsList] = useState(allRestaurants || []);
   
-  const [vehiclesList, setVehiclesList] = useState(() => {
-    const savedVehicles = localStorage.getItem('vehicles');
-    return savedVehicles ? JSON.parse(savedVehicles) : vehicles;
-  });
+  // Update local state when context data changes
+  useEffect(() => {
+    if (allProperties) setPropertiesList(allProperties);
+  }, [allProperties]);
   
-  const [restaurantsList, setRestaurantsList] = useState(() => {
-    const savedRestaurants = localStorage.getItem('restaurants');
-    return savedRestaurants ? JSON.parse(savedRestaurants) : restaurants;
-  });
+  useEffect(() => {
+    if (allVehicles) setVehiclesList(allVehicles);
+  }, [allVehicles]);
   
+  useEffect(() => {
+    if (allRestaurants) setRestaurantsList(allRestaurants);
+  }, [allRestaurants]);
+  
+  // Initialize cafes state from context or localStorage
   const [cafesList, setCafesList] = useState<Cafe[]>(() => {
+    if (allCafes && allCafes.length > 0) return allCafes;
+    
     const savedCafes = localStorage.getItem('cafesList');
     return savedCafes ? JSON.parse(savedCafes) : [
       { id: 1, name: "Cafe Maroc", location: "Downtown Martil", rating: 4.8, image: "/images/cafe1.jpg", lat: 35.615367, lng: -5.271562, description: "Best traditional Moroccan coffee" },
@@ -127,35 +134,27 @@ const AdminDashboard = () => {
     }
   });
 
-  // Save data to localStorage whenever it changes
+  // Save data to context whenever it changes
   useEffect(() => {
+    updateProperties(propertiesList);
     localStorage.setItem('properties', JSON.stringify(propertiesList));
-  }, [propertiesList]);
+  }, [propertiesList, updateProperties]);
 
   useEffect(() => {
+    updateVehicles(vehiclesList);
     localStorage.setItem('vehicles', JSON.stringify(vehiclesList));
-  }, [vehiclesList]);
+  }, [vehiclesList, updateVehicles]);
 
   useEffect(() => {
+    updateRestaurants(restaurantsList);
     localStorage.setItem('restaurants', JSON.stringify(restaurantsList));
-  }, [restaurantsList]);
+  }, [restaurantsList, updateRestaurants]);
 
   useEffect(() => {
+    updateCafes(cafesList);
     localStorage.setItem('cafesList', JSON.stringify(cafesList));
-  }, [cafesList]);
+  }, [cafesList, updateCafes]);
 
-  useEffect(() => {
-    localStorage.setItem('mapSettings', JSON.stringify(mapSettings));
-  }, [mapSettings]);
-
-  useEffect(() => {
-    localStorage.setItem('siteSettings', JSON.stringify(siteSettings));
-  }, [siteSettings]);
-
-  useEffect(() => {
-    localStorage.setItem('bookingRequests', JSON.stringify(bookingRequests));
-  }, [bookingRequests]);
-  
   // Reset cafe form when selected cafe changes
   useEffect(() => {
     if (selectedCafe) {
@@ -164,8 +163,9 @@ const AdminDashboard = () => {
   }, [selectedCafe, cafeForm]);
   
   // Apply map settings
-  const handleMapSettingsUpdate = (values: typeof mapSettings) => {
+  const handleMapSettingsUpdate = (values: any) => {
     setMapSettings(values);
+    localStorage.setItem('mapSettings', JSON.stringify(values));
     toast({
       title: "Map settings updated",
       description: "Your map configuration has been saved and applied.",
@@ -206,12 +206,13 @@ const AdminDashboard = () => {
     };
     const updatedProperties = [...propertiesList, newProperty];
     setPropertiesList(updatedProperties);
-    localStorage.setItem('properties', JSON.stringify(updatedProperties));
+    updateProperties(updatedProperties);
     
     toast({
       title: "Property added",
       description: "The property has been added successfully.",
     });
+    setIsAddPropertyOpen(false);
   };
   
   const handleEditProperty = (data: PropertyFormData) => {
@@ -231,7 +232,7 @@ const AdminDashboard = () => {
     );
     
     setPropertiesList(updatedProperties);
-    localStorage.setItem('properties', JSON.stringify(updatedProperties));
+    updateProperties(updatedProperties);
     
     toast({
       title: "Property updated",
@@ -245,7 +246,7 @@ const AdminDashboard = () => {
     );
     
     setPropertiesList(updatedProperties);
-    localStorage.setItem('properties', JSON.stringify(updatedProperties));
+    updateProperties(updatedProperties);
     
     toast({
       title: featured ? "Property featured" : "Property unfeatured",
@@ -261,7 +262,7 @@ const AdminDashboard = () => {
     );
     
     setPropertiesList(updatedProperties);
-    localStorage.setItem('properties', JSON.stringify(updatedProperties));
+    updateProperties(updatedProperties);
     setIsDeletePropertyOpen(false);
     
     toast({
@@ -400,7 +401,7 @@ const AdminDashboard = () => {
     );
     
     setPropertiesList(updatedProperties);
-    localStorage.setItem('properties', JSON.stringify(updatedProperties));
+    updateProperties(updatedProperties);
     
     toast({
       title: "Property updated",
