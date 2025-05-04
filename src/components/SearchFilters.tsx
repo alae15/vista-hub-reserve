@@ -55,7 +55,8 @@ const SearchFilters = ({ type, onSearch }: SearchFiltersProps) => {
       cuisine: type === "restaurants" ? cuisine : undefined,
       checkInDate,
       checkOutDate,
-      priceRange,
+      minPrice: priceRange[0].toString(),
+      maxPrice: priceRange[1].toString(),
       guests,
       transmission: type === "vehicles" ? transmission : undefined
     };
@@ -110,6 +111,7 @@ const SearchFilters = ({ type, onSearch }: SearchFiltersProps) => {
                   <Button
                     variant="outline"
                     className="w-full justify-start text-left font-normal mt-1 pointer-events-auto"
+                    type="button"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {checkInDate ? format(checkInDate, "PPP") : <span>Pick a date</span>}
@@ -134,6 +136,7 @@ const SearchFilters = ({ type, onSearch }: SearchFiltersProps) => {
                   <Button
                     variant="outline"
                     className="w-full justify-start text-left font-normal mt-1 pointer-events-auto"
+                    type="button"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {checkOutDate ? format(checkOutDate, "PPP") : <span>Pick a date</span>}
@@ -266,7 +269,7 @@ const SearchFilters = ({ type, onSearch }: SearchFiltersProps) => {
       </div>
 
       <div className="mt-4 flex justify-end pointer-events-auto">
-        <Button className="pointer-events-auto" onClick={handleSearch}>Search</Button>
+        <Button className="pointer-events-auto" onClick={handleSearch} type="button">Search</Button>
       </div>
     </div>
   );

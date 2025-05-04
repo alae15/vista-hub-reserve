@@ -33,9 +33,9 @@ const Properties = () => {
       );
     }
     
-    if (filters.type) {
+    if (filters.propertyType && filters.propertyType !== "all") {
       results = results.filter((property) =>
-        property.type.toLowerCase().includes(filters.type.toLowerCase())
+        property.type.toLowerCase() === filters.propertyType.toLowerCase()
       );
     }
     

@@ -1,13 +1,17 @@
-
 import { useRef, useEffect, useState } from "react";
 import { Coffee } from "lucide-react";
+import { useData } from "@/contexts/DataContext";
 
-interface Cafe {
+// Make sure we're using a consistent Cafe type
+interface CafeMapCafe {
+  id: number;
   name: string;
   lat: number;
   lng: number;
   rating: number;
   description?: string;
+  location?: string;
+  image?: string;
 }
 
 interface CafeMapProps {
@@ -17,10 +21,10 @@ interface CafeMapProps {
   showMarkers?: boolean;
   centerLat?: number;
   centerLng?: number;
-  cafes?: Cafe[];
-  onMarkerClick?: (cafe: Cafe) => void;
+  cafes?: CafeMapCafe[];
+  onMarkerClick?: (cafe: CafeMapCafe) => void;
   isEditable?: boolean;
-  onCafeUpdate?: (cafes: Cafe[]) => void;
+  onCafeUpdate?: (cafes: CafeMapCafe[]) => void;
 }
 
 const CafeMap = ({
@@ -37,39 +41,59 @@ const CafeMap = ({
 }: CafeMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [selectedCafe, setSelectedCafe] = useState<Cafe | null>(null);
+  const [selectedCafe, setSelectedCafe] = useState<CafeMapCafe | null>(null);
+  const { cafes: contextCafes } = useData();
   
   // Load custom cafe data from localStorage if available or use provided props
-  const [cafes, setCafes] = useState<Cafe[]>(() => {
-    if (propCafes) return propCafes;
+  const [cafes, setCafes] = useState<CafeMapCafe[]>(() => {
+    // If props are provided, use them
+    if (propCafes && propCafes.length > 0) return propCafes;
     
-    const savedCafes = localStorage.getItem('cafesList');
-    return savedCafes ? JSON.parse(savedCafes) : [
-      { name: "Cafe Maroc", lat: 35.615367, lng: -5.271562, rating: 4.8, description: "Best traditional Moroccan coffee" },
-      { name: "Beach Coffee", lat: 35.617367, lng: -5.273562, rating: 4.6, description: "Amazing views with great espresso" },
-      { name: "Sunset Cafe", lat: 35.614567, lng: -5.274562, rating: 4.9, description: "Perfect place to watch the sunset" },
-      { name: "Martil Espresso", lat: 35.618367, lng: -5.270562, rating: 4.7, description: "Specialty coffee and pastries" },
-      { name: "Ocean View Coffee", lat: 35.613367, lng: -5.275562, rating: 4.5, description: "Fresh sea breeze and fresh coffee" },
+    // Otherwise, try to use context cafes
+    if (contextCafes && contextCafes.length > 0) {
+      return contextCafes as CafeMapCafe[];
+    }
+    
+    // Fallback to default cafes
+    return [
+      { id: 1, name: "Cafe Maroc", lat: 35.615367, lng: -5.271562, rating: 4.8, description: "Best traditional Moroccan coffee", location: "Downtown Martil" },
+      { id: 2, name: "Beach Coffee", lat: 35.617367, lng: -5.273562, rating: 4.6, description: "Amazing views with great espresso", location: "Martil Beach" },
+      { id: 3, name: "Sunset Cafe", lat: 35.614567, lng: -5.274562, rating: 4.9, description: "Perfect place to watch the sunset", location: "West Martil" },
+      { id: 4, name: "Martil Espresso", lat: 35.618367, lng: -5.270562, rating: 4.7, description: "Specialty coffee and pastries", location: "City Center" },
+      { id: 5, name: "Ocean View Coffee", lat: 35.613367, lng: -5.275562, rating: 4.5, description: "Fresh sea breeze and fresh coffee", location: "Coastal Road" },
     ];
   });
 
-  // Update localStorage when cafes change
+  // Update onCafeUpdate when cafes change
   useEffect(() => {
-    if (!propCafes) {
-      localStorage.setItem('cafesList', JSON.stringify(cafes));
-    }
-    
-    if (onCafeUpdate) {
+    if (onCafeUpdate && cafes) {
       onCafeUpdate(cafes);
     }
-  }, [cafes, propCafes, onCafeUpdate]);
+  }, [cafes, onCafeUpdate]);
 
   // Handle marker click
-  const handleMarkerClick = (cafe: Cafe) => {
+  const handleMarkerClick = (cafe: CafeMapCafe) => {
     setSelectedCafe(cafe);
     if (onMarkerClick) {
       onMarkerClick(cafe);
     }
+  };
+
+  // Create a new cafe with a unique ID
+  const createNewCafe = () => {
+    const newId = cafes.length > 0 ? Math.max(...cafes.map(c => c.id)) + 1 : 1;
+    
+    const newCafe: CafeMapCafe = {
+      id: newId,
+      name: "New Cafe",
+      lat: centerLat + (Math.random() - 0.5) * 0.01,
+      lng: centerLng + (Math.random() - 0.5) * 0.01,
+      rating: 4.0,
+      description: "Add a description",
+      location: "Martil"
+    };
+    
+    setCafes([...cafes, newCafe]);
   };
 
   useEffect(() => {
@@ -108,7 +132,7 @@ const CafeMap = ({
       `;
       
       // If markers are enabled, add cafe markers
-      if (showMarkers) {
+      if (showMarkers && cafes && cafes.length > 0) {
         const markersContainer = document.createElement('div');
         markersContainer.className = 'absolute bottom-4 left-4 right-4 bg-white/90 p-2 rounded shadow-sm';
         markersContainer.innerHTML = `
@@ -174,8 +198,12 @@ const CafeMap = ({
     // Initialize the map
     initMap();
     
-    // Cleanup function not needed for our mock implementation
-    return () => {};
+    // Cleanup function to handle component unmounting
+    return () => {
+      if (mapContainerRef.current) {
+        mapContainerRef.current.innerHTML = '';
+      }
+    };
   }, [mapStyle, zoomLevel, showMarkers, centerLat, centerLng, cafes, selectedCafe, onMarkerClick]);
 
   return (
@@ -194,16 +222,8 @@ const CafeMap = ({
         <div className="absolute top-14 right-2 z-20">
           <button 
             className="bg-white rounded-full p-2 shadow-md hover:bg-gray-100"
-            onClick={() => {
-              const newCafe = {
-                name: "New Cafe",
-                lat: centerLat + (Math.random() - 0.5) * 0.01,
-                lng: centerLng + (Math.random() - 0.5) * 0.01,
-                rating: 4.0,
-                description: "Add a description"
-              };
-              setCafes([...cafes, newCafe]);
-            }}
+            onClick={createNewCafe}
+            type="button"
           >
             <Coffee className="h-4 w-4" />
           </button>
