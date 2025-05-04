@@ -19,7 +19,7 @@ const Home = () => {
 
   // Map cafes to CafeMapCafe type ensuring all required fields exist
   const mapCafes: CafeMapCafe[] = cafes.map(cafe => ({
-    id: cafe.id, // This is now guaranteed to be a number from our DataContext
+    id: typeof cafe.id === 'number' ? cafe.id : Math.floor(Math.random() * 10000),
     name: cafe.name,
     lat: cafe.lat,
     lng: cafe.lng,
@@ -104,21 +104,23 @@ const Home = () => {
               </h2>
             </div>
             
-            {mapCafes.length > 0 ? (
-              <CafeMap 
-                height="500px"
-                mapStyle={mapSettings.mapStyle}
-                zoomLevel={mapSettings.zoomLevel}
-                showMarkers={mapSettings.showMarkers}
-                centerLat={mapSettings.centerLat}
-                centerLng={mapSettings.centerLng}
-                cafes={mapCafes}
-              />
-            ) : (
-              <div className="bg-gray-100 rounded-lg p-4 text-center h-[500px] flex items-center justify-center">
-                <p>No cafes available to display. Add some cafes to see them on the map!</p>
-              </div>
-            )}
+            <div className="min-h-[500px]">
+              {mapCafes.length > 0 ? (
+                <CafeMap 
+                  height="500px"
+                  mapStyle={mapSettings.mapStyle}
+                  zoomLevel={mapSettings.zoomLevel}
+                  showMarkers={mapSettings.showMarkers}
+                  centerLat={mapSettings.centerLat}
+                  centerLng={mapSettings.centerLng}
+                  cafes={mapCafes}
+                />
+              ) : (
+                <div className="bg-gray-100 rounded-lg p-4 text-center h-[500px] flex items-center justify-center">
+                  <p>No cafes available to display. Add some cafes to see them on the map!</p>
+                </div>
+              )}
+            </div>
           </section>
         )}
       </main>

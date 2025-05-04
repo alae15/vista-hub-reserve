@@ -1,3 +1,4 @@
+
 import { useRef, useEffect, useState } from "react";
 import { Coffee } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
@@ -114,13 +115,14 @@ const CafeMap = ({
   };
 
   useEffect(() => {
-    // Create a mock implementation for demo purposes
-    const initMap = () => {
-      if (!mapContainerRef.current) return;
-      
+    if (!mapContainerRef.current) return;
+    
+    const renderMap = () => {
       try {
-        // For demo purposes, we'll just show a placeholder
         const mapContainer = mapContainerRef.current;
+        if (!mapContainer) return;
+        
+        // Clear previous content
         mapContainer.innerHTML = '';
         
         // Create main map container
@@ -155,12 +157,10 @@ const CafeMap = ({
           markersContainer.className = 'absolute bottom-4 left-4 right-4 bg-white/90 p-2 rounded shadow-sm';
           markersContainer.innerHTML = `
             <p class="text-sm font-medium mb-2">Top Cafes in Martil:</p>
-            <div class="space-y-1 text-xs">
+            <div class="space-y-1 text-xs cafe-list">
               ${cafes.map((cafe, index) => `
-                <div class="flex justify-between p-1 cursor-pointer hover:bg-gray-100 rounded" 
-                     id="cafe-${index}" 
-                     data-lat="${cafe.lat}" 
-                     data-lng="${cafe.lng}"
+                <div class="flex justify-between p-1 cursor-pointer hover:bg-gray-100 rounded cafe-item" 
+                     data-id="${cafe.id}" 
                      data-name="${cafe.name}"
                      data-rating="${cafe.rating}"
                      data-description="${cafe.description || ''}"
@@ -171,19 +171,10 @@ const CafeMap = ({
               `).join('')}
             </div>
           `;
+          
           fakeMap.appendChild(markersContainer);
           
-          // Add event listeners to the cafes
-          setTimeout(() => {
-            cafes.forEach((cafe, index) => {
-              const cafeEl = document.getElementById(`cafe-${index}`);
-              if (cafeEl) {
-                cafeEl.addEventListener('click', () => {
-                  handleMarkerClick(cafe);
-                });
-              }
-            });
-          }, 0);
+          // We'll attach event handlers after adding to the DOM
         }
         
         // If a cafe is selected, show its details
@@ -201,7 +192,7 @@ const CafeMap = ({
               </div>
             </div>
             <p class="text-sm mt-1">${selectedCafe.description || ''}</p>
-            <p class="text-xs text-muted-foreground mt-2">Location: ${selectedCafe.lat.toFixed(6)}, ${selectedCafe.lng.toFixed(6)}</p>
+            <p class="text-xs text-muted-foreground mt-2">Location: ${selectedCafe.location || ''}</p>
           `;
           fakeMap.appendChild(detailsContainer);
         }
@@ -210,9 +201,28 @@ const CafeMap = ({
         mapDiv.appendChild(header);
         mapContainer.appendChild(mapDiv);
         
+        // Now add event listeners after the elements are in the DOM
+        setTimeout(() => {
+          const cafeList = mapContainer.querySelector('.cafe-list');
+          if (cafeList) {
+            const cafeItems = cafeList.querySelectorAll('.cafe-item');
+            cafeItems.forEach(item => {
+              if (item instanceof HTMLElement) {
+                item.addEventListener('click', () => {
+                  const id = Number(item.dataset.id);
+                  const selectedCafe = cafes.find(cafe => cafe.id === id);
+                  if (selectedCafe) {
+                    handleMarkerClick(selectedCafe);
+                  }
+                });
+              }
+            });
+          }
+        }, 0);
+        
         setMapLoaded(true);
       } catch (error) {
-        console.error("Error initializing map:", error);
+        console.error("Error rendering map:", error);
         // Create a basic error display
         if (mapContainerRef.current) {
           mapContainerRef.current.innerHTML = '<div class="h-full flex items-center justify-center bg-gray-100"><p>Error loading map. Please try again.</p></div>';
@@ -220,17 +230,11 @@ const CafeMap = ({
         setMapLoaded(true); // Still mark as loaded to avoid loading state
       }
     };
-
-    // Initialize the map
-    initMap();
     
-    // Cleanup function to handle component unmounting
-    return () => {
-      if (mapContainerRef.current) {
-        mapContainerRef.current.innerHTML = '';
-      }
-    };
-  }, [mapStyle, zoomLevel, showMarkers, centerLat, centerLng, cafes, selectedCafe, onMarkerClick]);
+    // Render the map and clean up previous event listeners
+    renderMap();
+    
+  }, [mapStyle, zoomLevel, showMarkers, centerLat, centerLng, cafes, selectedCafe, handleMarkerClick]);
 
   return (
     <div 
