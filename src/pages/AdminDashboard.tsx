@@ -1,11 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { properties, vehicles, restaurants } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
 import { PropertyForm, PropertyFormData } from "@/components/PropertyForm";
 import { DeleteConfirmation } from "@/components/DeleteConfirmation";

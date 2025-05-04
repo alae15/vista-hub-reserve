@@ -1,257 +1,308 @@
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Calendar } from "@/components/ui/calendar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import { useData } from "@/contexts/DataContext";
 
 const BookNow = () => {
+  const [date, setDate] = useState<Date | undefined>(undefined);
+  const navigate = useNavigate();
   const { toast } = useToast();
-  const [startDate, setStartDate] = useState<Date | undefined>(new Date());
-  const [endDate, setEndDate] = useState<Date | undefined>(
-    new Date(new Date().setDate(new Date().getDate() + 3))
-  );
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    guests: "",
-    bookingType: "",
-    specialRequests: ""
+  const { properties, vehicles, restaurants, addBookingRequest } = useData();
+
+  const form = useForm({
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      bookingType: "",
+      bookingItem: "",
+      message: "",
+    },
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { id, value } = e.target;
-    setFormData({
-      ...formData,
-      [id]: value
-    });
-  };
+  const bookingTypes = [
+    { value: "property", label: "Property" },
+    { value: "vehicle", label: "Vehicle" },
+    { value: "restaurant", label: "Restaurant" },
+  ];
 
-  const handleSelectChange = (id: string, value: string) => {
-    setFormData({
-      ...formData,
-      [id]: value
-    });
-  };
+  const [bookingItems, setBookingItems] = useState([]);
+  const [selectedType, setSelectedType] = useState("");
 
-  const handleBooking = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    try {
-      // Prepare the booking data
-      const bookingData = {
-        id: Date.now(),
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        type: formData.bookingType,
-        guests: formData.guests,
-        checkIn: startDate ? format(startDate, "yyyy-MM-dd") : "",
-        checkOut: endDate ? format(endDate, "yyyy-MM-dd") : "",
-        specialRequests: formData.specialRequests,
-        date: format(new Date(), "yyyy-MM-dd"),
-        status: "pending"
-      };
-      
-      // Prepare the email data
-      const emailData = {
-        to: "admin@martistay.com", // Replace with your actual email
-        subject: `New Booking Request: ${formData.bookingType}`,
-        message: `
-          New booking request from ${formData.name}
-          
-          Contact Information:
-          - Email: ${formData.email}
-          - Phone: ${formData.phone}
-          
-          Booking Details:
-          - Type: ${formData.bookingType}
-          - Guests: ${formData.guests}
-          - Check-in: ${startDate ? format(startDate, "PPP") : "Not specified"}
-          - Check-out: ${endDate ? format(endDate, "PPP") : "Not specified"}
-          
-          Special Requests:
-          ${formData.specialRequests || "None"}
-        `
-      };
-      
-      // In a real implementation, this would send to an endpoint
-      console.log("Sending email with data:", emailData);
-      
-      // Store the booking data in localStorage for the admin dashboard
-      const existingBookings = JSON.parse(localStorage.getItem('bookingRequests') || '[]');
-      const updatedBookings = [...existingBookings, bookingData];
-      localStorage.setItem('bookingRequests', JSON.stringify(updatedBookings));
-      
-      // For demonstration, we'll simulate a successful email send
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast({
-        title: "Booking request sent!",
-        description: "We'll contact you shortly with confirmation details.",
-      });
-      
-      // Reset form
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        guests: "",
-        bookingType: "",
-        specialRequests: ""
-      });
-      
-    } catch (error) {
-      console.error("Error sending booking email:", error);
-      toast({
-        title: "Something went wrong",
-        description: "Please try again or contact us directly.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
+  const handleTypeChange = (value) => {
+    setSelectedType(value);
+    form.setValue("bookingType", value);
+    form.setValue("bookingItem", "");
+
+    switch (value) {
+      case "property":
+        setBookingItems(properties.map(item => ({ 
+          value: item.id.toString(), 
+          label: item.title 
+        })));
+        break;
+      case "vehicle":
+        setBookingItems(vehicles.map(item => ({ 
+          value: item.id.toString(), 
+          label: item.title 
+        })));
+        break;
+      case "restaurant":
+        setBookingItems(restaurants.map(item => ({ 
+          value: item.id.toString(), 
+          label: item.name 
+        })));
+        break;
+      default:
+        setBookingItems([]);
     }
+  };
+
+  const onSubmit = (data) => {
+    if (!date) {
+      toast({
+        title: "Missing date",
+        description: "Please select a booking date.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Add to booking requests
+    addBookingRequest({
+      name: data.name,
+      email: data.email,
+      type: data.bookingType,
+      date: format(date, "yyyy-MM-dd"),
+      status: "pending"
+    });
+
+    toast({
+      title: "Booking request submitted",
+      description: "We'll get back to you shortly to confirm your booking.",
+    });
+
+    navigate("/");
   };
 
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
       
-      <main className="flex-1 bg-martil-beige">
-        <div className="container mx-auto px-4 py-16">
-          <h1 className="text-3xl md:text-4xl font-bold text-center mb-2 text-martil-navy">
-            Book Your Stay in Martil
-          </h1>
-          <p className="text-lg text-muted-foreground text-center mb-8">
-            Fill out the form below to request your booking
-          </p>
-          
-          <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-md p-6 md:p-8">
-            <form onSubmit={handleBooking} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input 
-                    id="name" 
-                    placeholder="Enter your full name" 
-                    required 
-                    value={formData.name}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    placeholder="Enter your email" 
-                    required 
-                    value={formData.email}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input 
-                    id="phone" 
-                    placeholder="Enter your phone number" 
-                    required 
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="guests">Number of Guests</Label>
-                  <Select onValueChange={(value) => handleSelectChange("guests", value)}>
-                    <SelectTrigger id="guests">
-                      <SelectValue placeholder="Select number of guests" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">1 Guest</SelectItem>
-                      <SelectItem value="2">2 Guests</SelectItem>
-                      <SelectItem value="3">3 Guests</SelectItem>
-                      <SelectItem value="4">4 Guests</SelectItem>
-                      <SelectItem value="5+">5+ Guests</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="booking-type">What would you like to book?</Label>
-                  <Select onValueChange={(value) => handleSelectChange("bookingType", value)}>
-                    <SelectTrigger id="booking-type">
-                      <SelectValue placeholder="Select booking type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="property">Property / Accommodation</SelectItem>
-                      <SelectItem value="vehicle">Vehicle Rental</SelectItem>
-                      <SelectItem value="restaurant">Restaurant Reservation</SelectItem>
-                      <SelectItem value="package">Complete Package</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Stay/Rental Period</Label>
+      <main className="flex-1 bg-gray-50 py-12">
+        <div className="container mx-auto px-4">
+          <Card className="max-w-2xl mx-auto p-6">
+            <h1 className="text-2xl font-bold text-center mb-8">Book Your Martil Experience</h1>
+            
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-2">Check-in / Start Date</p>
-                    <div className="border rounded-md p-4">
-                      <Calendar
-                        mode="single"
-                        selected={startDate}
-                        onSelect={setStartDate}
-                        disabled={(date) => date < new Date()}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-2">Check-out / End Date</p>
-                    <div className="border rounded-md p-4">
-                      <Calendar
-                        mode="single"
-                        selected={endDate}
-                        onSelect={setEndDate}
-                        disabled={(date) => date < (startDate || new Date())}
-                      />
-                    </div>
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    rules={{ required: "Name is required" }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="John Doe" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    rules={{ 
+                      required: "Email is required",
+                      pattern: {
+                        value: /\S+@\S+\.\S+/,
+                        message: "Please enter a valid email",
+                      },
+                    }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="john@example.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="specialRequests">Special Requests</Label>
-                <Textarea
-                  id="specialRequests"
-                  placeholder="Any special requests or requirements..."
-                  className="min-h-[120px]"
-                  value={formData.specialRequests}
-                  onChange={handleInputChange}
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone Number</FormLabel>
+                        <FormControl>
+                          <Input placeholder="+1 234 567 890" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormItem>
+                    <FormLabel>Booking Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !date && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {date ? format(date, "PPP") : "Select a date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={date}
+                          onSelect={setDate}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </FormItem>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="bookingType"
+                    rules={{ required: "Booking type is required" }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Booking Type</FormLabel>
+                        <Select 
+                          onValueChange={(value) => handleTypeChange(value)}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select what you want to book" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {bookingTypes.map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="bookingItem"
+                    rules={{ required: selectedType ? "Please select an item" : false }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          {selectedType === "property" && "Select Property"}
+                          {selectedType === "vehicle" && "Select Vehicle"}
+                          {selectedType === "restaurant" && "Select Restaurant"}
+                          {!selectedType && "Select Item"}
+                        </FormLabel>
+                        <Select
+                          disabled={!selectedType}
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder={
+                                selectedType 
+                                  ? `Select a ${selectedType}`
+                                  : "Choose booking type first"
+                              } />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {bookingItems.map((item) => (
+                              <SelectItem key={item.value} value={item.value}>
+                                {item.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <FormField
+                  control={form.control}
+                  name="message"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Special Requests</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Any special requirements or questions..."
+                          className="resize-none"
+                          rows={4}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              
-              <Button type="submit" className="w-full md:w-auto" disabled={isSubmitting}>
-                {isSubmitting ? "Submitting..." : "Submit Booking Request"}
-              </Button>
-
-              <div className="text-sm text-muted-foreground mt-4">
-                <p>Your booking request will be sent directly to our team, and we'll contact you via email to confirm your reservation.</p>
-              </div>
-            </form>
-          </div>
+                
+                <Button type="submit" className="w-full">
+                  Submit Booking Request
+                </Button>
+              </form>
+            </Form>
+          </Card>
         </div>
       </main>
       
