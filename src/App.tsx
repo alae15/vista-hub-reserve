@@ -17,7 +17,16 @@ import AdminDashboard from "./pages/AdminDashboard";
 import BookNow from "./pages/BookNow";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+// Create a new client with configuration to prevent caching issues
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+      staleTime: Infinity,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

@@ -111,7 +111,7 @@ const AdminDashboard = () => {
   const [isAddPropertyOpen, setIsAddPropertyOpen] = useState(false);
   const [isEditPropertyOpen, setIsEditPropertyOpen] = useState(false);
   const [isDeletePropertyOpen, setIsDeletePropertyOpen] = useState(false);
-  const [currentProperty, setCurrentProperty] = useState(undefined);
+  const [currentProperty, setCurrentProperty] = useState(null);
   const [selectedCafe, setSelectedCafe] = useState(null);
   const [isEditCafeOpen, setIsEditCafeOpen] = useState(false);
   
@@ -136,23 +136,31 @@ const AdminDashboard = () => {
 
   // Save data to context whenever it changes
   useEffect(() => {
-    updateProperties(propertiesList);
-    localStorage.setItem('properties', JSON.stringify(propertiesList));
+    if (propertiesList?.length) {
+      updateProperties(propertiesList);
+      localStorage.setItem('properties', JSON.stringify(propertiesList));
+    }
   }, [propertiesList, updateProperties]);
 
   useEffect(() => {
-    updateVehicles(vehiclesList);
-    localStorage.setItem('vehicles', JSON.stringify(vehiclesList));
+    if (vehiclesList?.length) {
+      updateVehicles(vehiclesList);
+      localStorage.setItem('vehicles', JSON.stringify(vehiclesList));
+    }
   }, [vehiclesList, updateVehicles]);
 
   useEffect(() => {
-    updateRestaurants(restaurantsList);
-    localStorage.setItem('restaurants', JSON.stringify(restaurantsList));
+    if (restaurantsList?.length) {
+      updateRestaurants(restaurantsList);
+      localStorage.setItem('restaurants', JSON.stringify(restaurantsList));
+    }
   }, [restaurantsList, updateRestaurants]);
 
   useEffect(() => {
-    updateCafes(cafesList);
-    localStorage.setItem('cafesList', JSON.stringify(cafesList));
+    if (cafesList?.length) {
+      updateCafes(cafesList);
+      localStorage.setItem('cafesList', JSON.stringify(cafesList));
+    }
   }, [cafesList, updateCafes]);
 
   // Reset cafe form when selected cafe changes
@@ -163,7 +171,7 @@ const AdminDashboard = () => {
   }, [selectedCafe, cafeForm]);
   
   // Apply map settings
-  const handleMapSettingsUpdate = (values: any) => {
+  const handleMapSettingsUpdate = (values) => {
     setMapSettings(values);
     localStorage.setItem('mapSettings', JSON.stringify(values));
     toast({
@@ -190,7 +198,7 @@ const AdminDashboard = () => {
   };
   
   // Property operations
-  const handleAddProperty = (data: PropertyFormData) => {
+  const handleAddProperty = (data) => {
     const newProperty = {
       ...data,
       id: propertiesList.length + 1,
@@ -215,7 +223,7 @@ const AdminDashboard = () => {
     setIsAddPropertyOpen(false);
   };
   
-  const handleEditProperty = (data: PropertyFormData) => {
+  const handleEditProperty = (data) => {
     if (!currentProperty) return;
     
     const updatedProperties = propertiesList.map(property => 
@@ -240,7 +248,7 @@ const AdminDashboard = () => {
     });
   };
 
-  const handleTogglePropertyFeature = (id: number, featured: boolean) => {
+  const handleTogglePropertyFeature = (id, featured) => {
     const updatedProperties = propertiesList.map(property => 
       property.id === id ? { ...property, featured } : property
     );
@@ -273,9 +281,9 @@ const AdminDashboard = () => {
   };
   
   // Cafe operations
-  const handleCafeUpdate = (updatedCafes: CafeMapCafe[]) => {
+  const handleCafeUpdate = (updatedCafes) => {
     // Map the cafe data to our expected format
-    const formattedCafes = updatedCafes.map((cafe, index) => ({
+    const formattedCafes = updatedCafes.map((cafe) => ({
       id: cafe.id,
       name: cafe.name,
       lat: cafe.lat, 
@@ -313,7 +321,7 @@ const AdminDashboard = () => {
     });
   };
   
-  const handleEditCafe = (data: Cafe) => {
+  const handleEditCafe = (data) => {
     if (!selectedCafe) return;
     
     const updatedCafes = cafesList.map(cafe => 
@@ -330,7 +338,7 @@ const AdminDashboard = () => {
     });
   };
   
-  const handleDeleteCafe = (id: number) => {
+  const handleDeleteCafe = (id) => {
     const updatedCafes = cafesList.filter(cafe => cafe.id !== id);
     setCafesList(updatedCafes);
     localStorage.setItem('cafesList', JSON.stringify(updatedCafes));
@@ -343,7 +351,7 @@ const AdminDashboard = () => {
   };
   
   // Booking request management
-  const handleUpdateBookingStatus = (id: number, status: string) => {
+  const handleUpdateBookingStatus = (id, status) => {
     const updatedRequests = bookingRequests.map(request => 
       request.id === id ? {...request, status} : request
     );
@@ -358,21 +366,21 @@ const AdminDashboard = () => {
   };
   
   // Generic handlers for other types
-  const handleAdd = (type: string) => {
+  const handleAdd = (type) => {
     toast({
       title: "Add new item",
       description: `Form to add a new ${type} would appear here.`,
     });
   };
   
-  const handleEdit = (type: string, id: number) => {
+  const handleEdit = (type, id) => {
     toast({
       title: "Edit item",
       description: `Form to edit ${type} #${id} would appear here.`,
     });
   };
   
-  const handleDelete = (type: string, id: number) => {
+  const handleDelete = (type, id) => {
     toast({
       title: "Delete item",
       description: `Confirmation to delete ${type} #${id} would appear here.`,
@@ -381,7 +389,7 @@ const AdminDashboard = () => {
   };
   
   // Respond to an email booking request
-  const handleRespondToBooking = (id: number) => {
+  const handleRespondToBooking = (id) => {
     const booking = bookingRequests.find(request => request.id === id);
     
     if (!booking) return;
@@ -396,7 +404,7 @@ const AdminDashboard = () => {
   };
   
   // Update property description and other details
-  const handlePropertyDetailUpdate = (id: number, field: string, value: any) => {
+  const handlePropertyDetailUpdate = (id, field, value) => {
     const updatedProperties = propertiesList.map(property => 
       property.id === id ? { ...property, [field]: value } : property
     );
@@ -411,7 +419,7 @@ const AdminDashboard = () => {
   };
   
   // Map cafes to CafeMapCafe type for the CafeMap component
-  const mapCafes: CafeMapCafe[] = cafesList.map(cafe => ({
+  const mapCafes = cafesList.map(cafe => ({
     id: cafe.id,
     name: cafe.name,
     lat: cafe.lat, 
@@ -445,7 +453,7 @@ const AdminDashboard = () => {
                 <MapPin className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{propertiesList.length}</div>
+                <div className="text-2xl font-bold">{propertiesList?.length || 0}</div>
                 <p className="text-xs text-muted-foreground">
                   Manage your properties listings
                 </p>
@@ -459,7 +467,7 @@ const AdminDashboard = () => {
                 <Car className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{vehiclesList.length}</div>
+                <div className="text-2xl font-bold">{vehiclesList?.length || 0}</div>
                 <p className="text-xs text-muted-foreground">
                   Manage your vehicle rentals
                 </p>
@@ -473,7 +481,7 @@ const AdminDashboard = () => {
                 <Utensils className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{restaurantsList.length}</div>
+                <div className="text-2xl font-bold">{restaurantsList?.length || 0}</div>
                 <p className="text-xs text-muted-foreground">
                   Manage your restaurant listings
                 </p>
@@ -487,7 +495,7 @@ const AdminDashboard = () => {
                 <Coffee className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{cafesList.length}</div>
+                <div className="text-2xl font-bold">{cafesList?.length || 0}</div>
                 <p className="text-xs text-muted-foreground">
                   Manage cafe listings and map
                 </p>
@@ -501,7 +509,7 @@ const AdminDashboard = () => {
                 <Mail className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{bookingRequests.length}</div>
+                <div className="text-2xl font-bold">{bookingRequests?.length || 0}</div>
                 <p className="text-xs text-muted-foreground">
                   Manage booking requests
                 </p>
@@ -519,6 +527,7 @@ const AdminDashboard = () => {
               <TabsTrigger value="settings">Settings</TabsTrigger>
             </TabsList>
             
+            {/* Content for the Properties tab */}
             <TabsContent value="properties">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-medium">Manage Properties</h2>
@@ -723,6 +732,7 @@ const AdminDashboard = () => {
               </div>
             </TabsContent>
             
+            {/* Content for the Vehicles tab */}
             <TabsContent value="vehicles">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-medium">Manage Vehicles</h2>
@@ -784,6 +794,7 @@ const AdminDashboard = () => {
               </div>
             </TabsContent>
             
+            {/* Content for the Restaurants tab */}
             <TabsContent value="restaurants">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-medium">Manage Restaurants</h2>
@@ -818,432 +829,3 @@ const AdminDashboard = () => {
                         </td>
                         <td className="py-3 px-4">{restaurant.name}</td>
                         <td className="py-3 px-4">{restaurant.cuisine}</td>
-                        <td className="py-3 px-4">{restaurant.location}</td>
-                        <td className="py-3 px-4">{restaurant.rating}</td>
-                        <td className="py-3 px-4 text-right">
-                          <div className="flex gap-2 justify-end">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleEdit("restaurant", restaurant.id)}
-                            >
-                              Edit
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="destructive"
-                              onClick={() => handleDelete("restaurant", restaurant.id)}
-                            >
-                              Delete
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="cafes">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-medium">Martil Cafes</h2>
-                <Button onClick={handleAddCafe}>
-                  Add New Cafe
-                </Button>
-              </div>
-              
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2">
-                  <div className="mb-4">
-                    <h3 className="text-lg font-medium mb-4">Cafe Map Preview</h3>
-                    <CafeMap 
-                      height="400px"
-                      mapStyle={mapSettings.mapStyle}
-                      zoomLevel={mapSettings.zoomLevel}
-                      showMarkers={mapSettings.showMarkers}
-                      centerLat={mapSettings.centerLat}
-                      centerLng={mapSettings.centerLng}
-                      cafes={mapCafes}
-                      onMarkerClick={(cafe) => {
-                        const fullCafe = cafesList.find(c => c.id === cafe.id);
-                        if (fullCafe) {
-                          setSelectedCafe(fullCafe);
-                        }
-                      }}
-                      isEditable={true}
-                      onCafeUpdate={handleCafeUpdate}
-                    />
-                  </div>
-                  
-                  <div className="bg-gray-50 rounded-lg p-4 border">
-                    <h3 className="text-lg font-medium mb-4">Map Settings</h3>
-                    <form onSubmit={mapForm.handleSubmit(handleMapSettingsUpdate)} className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label>Map Style</Label>
-                          <Select 
-                            defaultValue={mapSettings.mapStyle}
-                            onValueChange={(value) => mapForm.setValue("mapStyle", value)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select style" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="streets">Streets</SelectItem>
-                              <SelectItem value="satellite">Satellite</SelectItem>
-                              <SelectItem value="hybrid">Hybrid</SelectItem>
-                              <SelectItem value="light">Light</SelectItem>
-                              <SelectItem value="dark">Dark</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label>Zoom Level</Label>
-                          <Input 
-                            type="number" 
-                            min="1" 
-                            max="20"
-                            defaultValue={mapSettings.zoomLevel}
-                            onChange={(e) => mapForm.setValue("zoomLevel", parseInt(e.target.value))}
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label>Center Latitude</Label>
-                          <Input 
-                            type="number" 
-                            step="0.000001"
-                            defaultValue={mapSettings.centerLat}
-                            onChange={(e) => mapForm.setValue("centerLat", parseFloat(e.target.value))}
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label>Center Longitude</Label>
-                          <Input 
-                            type="number" 
-                            step="0.000001"
-                            defaultValue={mapSettings.centerLng}
-                            onChange={(e) => mapForm.setValue("centerLng", parseFloat(e.target.value))}
-                          />
-                        </div>
-                        
-                        <div className="space-y-2 flex items-center">
-                          <div className="flex items-center space-x-2">
-                            <Switch 
-                              id="show-markers"
-                              defaultChecked={mapSettings.showMarkers}
-                              onCheckedChange={(checked) => mapForm.setValue("showMarkers", checked)}
-                            />
-                            <Label htmlFor="show-markers">Show Cafe Markers</Label>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <Button type="submit">Save Map Settings</Button>
-                    </form>
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-medium mb-4">Cafes List</h3>
-                  <div className="space-y-4">
-                    {cafesList.map(cafe => (
-                      <div key={cafe.id} className="bg-white rounded-lg border shadow p-4">
-                        <div className="flex justify-between items-start">
-                          <h4 className="font-medium">{cafe.name}</h4>
-                          <div className="flex items-center">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 24 24"
-                              fill="currentColor"
-                              className="w-4 h-4 text-yellow-500 mr-1"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                            <span className="text-sm">{cafe.rating}</span>
-                          </div>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-2">{cafe.location}</p>
-                        <p className="text-sm mb-3">{cafe.description || 'No description available.'}</p>
-                        <div className="text-xs text-muted-foreground mb-2">
-                          Location: {cafe.lat.toFixed(6)}, {cafe.lng.toFixed(6)}
-                        </div>
-                        <div className="flex justify-end space-x-2">
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => {
-                              setSelectedCafe(cafe);
-                              setIsEditCafeOpen(true);
-                            }}
-                          >
-                            Edit
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="destructive"
-                            onClick={() => handleDeleteCafe(cafe.id as number)}
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {/* Edit Cafe Dialog */}
-                  <Dialog open={isEditCafeOpen} onOpenChange={setIsEditCafeOpen}>
-                    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-                      <div className="bg-white rounded-lg w-full max-w-md p-6">
-                        <h2 className="text-xl font-semibold mb-4">Edit Cafe</h2>
-                        <form onSubmit={cafeForm.handleSubmit(handleEditCafe)} className="space-y-4">
-                          <div>
-                            <Label htmlFor="name">Name</Label>
-                            <Input
-                              id="name"
-                              {...cafeForm.register('name')}
-                              defaultValue={selectedCafe?.name}
-                            />
-                          </div>
-                          
-                          <div>
-                            <Label htmlFor="location">Location</Label>
-                            <Input
-                              id="location"
-                              {...cafeForm.register('location')}
-                              defaultValue={selectedCafe?.location}
-                            />
-                          </div>
-                          
-                          <div>
-                            <Label htmlFor="description">Description</Label>
-                            <Textarea
-                              id="description"
-                              {...cafeForm.register('description')}
-                              defaultValue={selectedCafe?.description}
-                              rows={3}
-                            />
-                          </div>
-                          
-                          <div className="grid grid-cols-3 gap-4">
-                            <div>
-                              <Label htmlFor="rating">Rating (0-5)</Label>
-                              <Input
-                                id="rating"
-                                type="number"
-                                step="0.1"
-                                min="0"
-                                max="5"
-                                {...cafeForm.register('rating')}
-                                defaultValue={selectedCafe?.rating}
-                              />
-                            </div>
-                            
-                            <div>
-                              <Label htmlFor="lat">Latitude</Label>
-                              <Input
-                                id="lat"
-                                type="number"
-                                step="0.000001"
-                                {...cafeForm.register('lat')}
-                                defaultValue={selectedCafe?.lat}
-                              />
-                            </div>
-                            
-                            <div>
-                              <Label htmlFor="lng">Longitude</Label>
-                              <Input
-                                id="lng"
-                                type="number"
-                                step="0.000001"
-                                {...cafeForm.register('lng')}
-                                defaultValue={selectedCafe?.lng}
-                              />
-                            </div>
-                          </div>
-                          
-                          <div className="flex justify-end space-x-2 pt-4">
-                            <Button type="button" variant="outline" onClick={() => setIsEditCafeOpen(false)}>Cancel</Button>
-                            <Button type="submit">Save Changes</Button>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
-                  </Dialog>
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="bookings">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-medium">Manage Booking Requests</h2>
-              </div>
-              
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="py-3 px-4 text-left">ID</th>
-                      <th className="py-3 px-4 text-left">Name</th>
-                      <th className="py-3 px-4 text-left">Email</th>
-                      <th className="py-3 px-4 text-left">Type</th>
-                      <th className="py-3 px-4 text-left">Date</th>
-                      <th className="py-3 px-4 text-left">Status</th>
-                      <th className="py-3 px-4 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bookingRequests.map(request => (
-                      <tr key={request.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4">{request.id}</td>
-                        <td className="py-3 px-4">{request.name}</td>
-                        <td className="py-3 px-4">{request.email}</td>
-                        <td className="py-3 px-4">{request.type}</td>
-                        <td className="py-3 px-4">{request.date}</td>
-                        <td className="py-3 px-4">
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            request.status === 'confirmed' 
-                              ? 'bg-green-100 text-green-800' 
-                              : request.status === 'pending'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-blue-100 text-blue-800'
-                          }`}>
-                            {request.status}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-right">
-                          <div className="flex gap-2 justify-end">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleRespondToBooking(request.id)}
-                            >
-                              <Send className="h-4 w-4 mr-1" />
-                              Respond
-                            </Button>
-                            
-                            <Select
-                              defaultValue={request.status}
-                              onValueChange={(value) => handleUpdateBookingStatus(request.id, value)}
-                            >
-                              <SelectTrigger className="h-9 w-32">
-                                <SelectValue placeholder="Status" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="pending">Pending</SelectItem>
-                                <SelectItem value="confirmed">Confirm</SelectItem>
-                                <SelectItem value="cancelled">Cancel</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="settings">
-              <div className="space-y-6">
-                <div>
-                  <h2 className="text-xl font-medium mb-4">Site Content</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Site Name</Label>
-                      <Input 
-                        value={siteSettings.siteName}
-                        onChange={(e) => setSiteSettings({...siteSettings, siteName: e.target.value})}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Contact Email</Label>
-                      <Input 
-                        type="email"
-                        value={siteSettings.contactEmail}
-                        onChange={(e) => setSiteSettings({...siteSettings, contactEmail: e.target.value})}
-                      />
-                    </div>
-                    <div className="space-y-2 md:col-span-2">
-                      <Label>Hero Title</Label>
-                      <Input 
-                        value={siteSettings.heroTitle}
-                        onChange={(e) => setSiteSettings({...siteSettings, heroTitle: e.target.value})}
-                      />
-                      <p className="text-xs text-muted-foreground">This title appears at the top of your home page</p>
-                    </div>
-                    <div className="space-y-2 md:col-span-2">
-                      <Label>Hero Description</Label>
-                      <Textarea 
-                        value={siteSettings.heroDescription}
-                        onChange={(e) => setSiteSettings({...siteSettings, heroDescription: e.target.value})}
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2 mt-4">
-                    <Switch 
-                      id="show-cafe-map"
-                      checked={siteSettings.showCafeMap}
-                      onCheckedChange={(checked) => setSiteSettings({...siteSettings, showCafeMap: checked})}
-                    />
-                    <Label htmlFor="show-cafe-map">Show Cafe Map on Homepage</Label>
-                  </div>
-                  <Button onClick={handleSiteSettingsUpdate} className="mt-4">
-                    Save Site Content
-                  </Button>
-                </div>
-                
-                <div className="pt-4 border-t">
-                  <h2 className="text-xl font-medium mb-4">Email Settings</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Booking Notification Email</Label>
-                      <Input 
-                        placeholder="Where booking notifications should be sent"
-                        value={siteSettings.contactEmail}
-                        onChange={(e) => setSiteSettings({...siteSettings, contactEmail: e.target.value})}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>SMTP Server</Label>
-                      <Input placeholder="smtp.example.com" />
-                    </div>
-                  </div>
-                  <Button className="mt-4" onClick={handleSiteSettingsUpdate}>
-                    Save Email Settings
-                  </Button>
-                </div>
-                
-                <div className="pt-4 border-t">
-                  <h2 className="text-xl font-medium mb-4">Media Management</h2>
-                  <div className="space-y-4">
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:bg-gray-50">
-                      <FileImage className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                      <p className="text-sm text-gray-600">
-                        Click to upload images or videos for your reel
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        Supports: JPG, PNG, MP4, WebM (Max: 10MB)
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </main>
-      
-      <Footer />
-    </div>
-  );
-};
-
-export default AdminDashboard;

@@ -36,7 +36,7 @@ const AdminLogin = () => {
           variant: "destructive",
         });
       }
-    }, 1500);
+    }, 1000);
   };
 
   return (
