@@ -36,7 +36,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useData } from "@/contexts/DataContext";
 
 const BookNow = () => {
-  const [date, setDate] = useState<Date | undefined>(undefined);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { properties, vehicles, restaurants, addBookingRequest } = useData();
@@ -49,7 +48,7 @@ const BookNow = () => {
       bookingType: "",
       bookingItem: "",
       message: "",
-      date: undefined, // Add date to form state
+      date: undefined,
     },
   });
 
@@ -91,14 +90,9 @@ const BookNow = () => {
     }
   };
 
-  // Update form date value when calendar date changes
-  const handleDateChange = (selectedDate: Date | undefined) => {
-    setDate(selectedDate);
-    form.setValue("date", selectedDate);
-  };
-
   const onSubmit = (data) => {
-    if (!date) {
+    // Extract the date value directly from form data
+    if (!data.date) {
       toast({
         title: "Missing date",
         description: "Please select a booking date.",
@@ -112,7 +106,7 @@ const BookNow = () => {
       name: data.name,
       email: data.email,
       type: data.bookingType,
-      date: format(date, "yyyy-MM-dd"),
+      date: format(data.date, "yyyy-MM-dd"),
       status: "pending"
     });
 
@@ -201,19 +195,19 @@ const BookNow = () => {
                                 variant="outline"
                                 className={cn(
                                   "w-full justify-start text-left font-normal",
-                                  !date && "text-muted-foreground"
+                                  !field.value && "text-muted-foreground"
                                 )}
                               >
                                 <CalendarIcon className="mr-2 h-4 w-4" />
-                                {date ? format(date, "PPP") : "Select a date"}
+                                {field.value ? format(field.value, "PPP") : "Select a date"}
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0">
                             <Calendar
                               mode="single"
-                              selected={date}
-                              onSelect={handleDateChange}
+                              selected={field.value}
+                              onSelect={field.onChange}
                               initialFocus
                             />
                           </PopoverContent>
