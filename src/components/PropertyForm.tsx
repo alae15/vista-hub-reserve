@@ -37,12 +37,23 @@ export type PropertyFormData = {
   featured?: boolean;
 }
 
+export type FormField = {
+  name: string;
+  label: string;
+  required?: boolean;
+  type?: string;
+  min?: number;
+  max?: number;
+  step?: number;
+}
+
 interface PropertyFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: PropertyFormData) => void;
-  property?: PropertyFormData;
+  onSubmit: (data: PropertyFormData | any) => void;
+  property?: PropertyFormData | any;
   title: string;
+  fields?: FormField[];
 }
 
 export function PropertyForm({ 
@@ -50,10 +61,11 @@ export function PropertyForm({
   onOpenChange, 
   onSubmit, 
   property, 
-  title 
+  title,
+  fields 
 }: PropertyFormProps) {
   const { toast } = useToast();
-  const form = useForm<PropertyFormData>({
+  const form = useForm<PropertyFormData | any>({
     defaultValues: property || {
       title: "",
       location: "",
@@ -69,7 +81,7 @@ export function PropertyForm({
     },
   });
 
-  const handleSubmit = (data: PropertyFormData) => {
+  const handleSubmit = (data: PropertyFormData | any) => {
     onSubmit(data);
     form.reset();
     onOpenChange(false);
@@ -79,6 +91,16 @@ export function PropertyForm({
     });
   };
 
+  // Use provided fields or default to property fields
+  const formFields = fields || [
+    { name: "title", label: "Title", required: true },
+    { name: "location", label: "Location", required: true },
+    { name: "type", label: "Type", required: true },
+    { name: "price", label: "Price", required: true, type: "number" },
+    { name: "image", label: "Image URL", required: true },
+    { name: "description", label: "Description" },
+  ];
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
@@ -87,84 +109,37 @@ export function PropertyForm({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Title</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Beach House" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Location</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Miami, FL" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Type</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Villa, Apartment, etc." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Price per night</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="150" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="image"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Image URL</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://example.com/image.jpg" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Property description..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {formFields.map((field) => (
+              <FormField
+                key={field.name}
+                control={form.control}
+                name={field.name}
+                render={({ field: formField }) => (
+                  <FormItem>
+                    <FormLabel>{field.label}</FormLabel>
+                    <FormControl>
+                      {field.type === "textarea" ? (
+                        <Textarea
+                          placeholder={`Enter ${field.label.toLowerCase()}`}
+                          {...formField}
+                        />
+                      ) : (
+                        <Input
+                          type={field.type || "text"}
+                          placeholder={field.label}
+                          min={field.min}
+                          max={field.max}
+                          step={field.step}
+                          required={field.required}
+                          {...formField}
+                        />
+                      )}
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ))}
             <DialogFooter>
               <Button type="submit">Save</Button>
             </DialogFooter>
