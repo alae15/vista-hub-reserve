@@ -102,11 +102,12 @@ export function PropertyForm({
     { name: "description", label: "Description" },
   ];
 
-  // Don't render the form if the dialog is not open to prevent context errors
+  // Don't render anything if dialog is not open
   if (!open) {
     return null;
   }
 
+  // The key Form component is rendered here with proper context
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
