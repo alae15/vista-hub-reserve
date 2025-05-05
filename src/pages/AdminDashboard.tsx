@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -849,3 +850,731 @@ const AdminDashboard = () => {
                                 <Button 
                                   size="sm" 
                                   variant="outline"
+                                >
+                                  <Edit className="h-4 w-4 mr-1" />
+                                  Edit
+                                </Button>
+                              </DialogTrigger>
+                              <PropertyForm
+                                open={true}
+                                onOpenChange={() => {}}
+                                onSubmit={handleEditProperty}
+                                defaultValues={property}
+                                title="Edit Property"
+                              />
+                            </Dialog>
+                            
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button 
+                                  size="sm" 
+                                  variant="destructive"
+                                  onClick={() => setCurrentProperty(property)}
+                                >
+                                  Delete
+                                </Button>
+                              </AlertDialogTrigger>
+                              <DeleteConfirmation
+                                title="Delete Property"
+                                description={`Are you sure you want to delete "${property.title}"? This action cannot be undone.`}
+                                onConfirm={handleDeleteProperty}
+                              />
+                            </AlertDialog>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </TabsContent>
+            
+            {/* Content for the Vehicles tab */}
+            <TabsContent value="vehicles">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-medium">Manage Vehicles</h2>
+                <Dialog open={isAddVehicleOpen} onOpenChange={setIsAddVehicleOpen}>
+                  <DialogTrigger asChild>
+                    <Button>
+                      Add New Vehicle
+                    </Button>
+                  </DialogTrigger>
+                  <PropertyForm
+                    open={isAddVehicleOpen}
+                    onOpenChange={setIsAddVehicleOpen}
+                    onSubmit={handleAddVehicle}
+                    title="Add New Vehicle"
+                    fields={vehicleFormFields}
+                  />
+                </Dialog>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="py-3 px-4 text-left">ID</th>
+                      <th className="py-3 px-4 text-left">Image</th>
+                      <th className="py-3 px-4 text-left">Title</th>
+                      <th className="py-3 px-4 text-left">Type</th>
+                      <th className="py-3 px-4 text-left">Year</th>
+                      <th className="py-3 px-4 text-left">Price</th>
+                      <th className="py-3 px-4 text-left">Featured</th>
+                      <th className="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {vehiclesList.map(vehicle => (
+                      <tr key={vehicle.id} className="border-b hover:bg-gray-50">
+                        <td className="py-3 px-4">{vehicle.id}</td>
+                        <td className="py-3 px-4">
+                          <img 
+                            src={vehicle.image} 
+                            alt={vehicle.title} 
+                            className="w-16 h-12 object-cover rounded"
+                          />
+                        </td>
+                        <td className="py-3 px-4">
+                          <input 
+                            type="text" 
+                            value={vehicle.title}
+                            onChange={(e) => handleVehicleDetailUpdate(vehicle.id, 'title', e.target.value)}
+                            className="border-b border-dashed border-gray-300 bg-transparent px-1 w-full focus:outline-none focus:border-primary"
+                          />
+                        </td>
+                        <td className="py-3 px-4">{vehicle.type}</td>
+                        <td className="py-3 px-4">{vehicle.year}</td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center">
+                            $
+                            <input 
+                              type="number" 
+                              value={vehicle.price}
+                              onChange={(e) => handleVehicleDetailUpdate(vehicle.id, 'price', parseInt(e.target.value))}
+                              className="border-b border-dashed border-gray-300 bg-transparent px-1 w-20 focus:outline-none focus:border-primary"
+                            />
+                            <span className="text-sm text-muted-foreground">/day</span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <Switch 
+                            checked={vehicle.featured} 
+                            onCheckedChange={(checked) => handleToggleVehicleFeature(vehicle.id, checked)} 
+                          />
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <div className="flex gap-2 justify-end">
+                            <Dialog open={isEditVehicleOpen && currentVehicle?.id === vehicle.id} onOpenChange={(open) => {
+                              setIsEditVehicleOpen(open);
+                              if (open) setCurrentVehicle(vehicle);
+                            }}>
+                              <DialogTrigger asChild>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                >
+                                  <Edit className="h-4 w-4 mr-1" />
+                                  Edit
+                                </Button>
+                              </DialogTrigger>
+                              <PropertyForm
+                                open={isEditVehicleOpen && currentVehicle?.id === vehicle.id}
+                                onOpenChange={setIsEditVehicleOpen}
+                                onSubmit={handleEditVehicle}
+                                defaultValues={vehicle}
+                                title="Edit Vehicle"
+                                fields={vehicleFormFields}
+                              />
+                            </Dialog>
+                            
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button 
+                                  size="sm" 
+                                  variant="destructive"
+                                  onClick={() => setCurrentVehicle(vehicle)}
+                                >
+                                  Delete
+                                </Button>
+                              </AlertDialogTrigger>
+                              <DeleteConfirmation
+                                title="Delete Vehicle"
+                                description={`Are you sure you want to delete "${vehicle.title}"? This action cannot be undone.`}
+                                onConfirm={handleDeleteVehicle}
+                              />
+                            </AlertDialog>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </TabsContent>
+            
+            {/* Content for the Restaurants tab */}
+            <TabsContent value="restaurants">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-medium">Manage Restaurants</h2>
+                <Dialog open={isAddRestaurantOpen} onOpenChange={setIsAddRestaurantOpen}>
+                  <DialogTrigger asChild>
+                    <Button>
+                      Add New Restaurant
+                    </Button>
+                  </DialogTrigger>
+                  <PropertyForm
+                    open={isAddRestaurantOpen}
+                    onOpenChange={setIsAddRestaurantOpen}
+                    onSubmit={handleAddRestaurant}
+                    title="Add New Restaurant"
+                    fields={restaurantFormFields}
+                  />
+                </Dialog>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="py-3 px-4 text-left">ID</th>
+                      <th className="py-3 px-4 text-left">Image</th>
+                      <th className="py-3 px-4 text-left">Name</th>
+                      <th className="py-3 px-4 text-left">Cuisine</th>
+                      <th className="py-3 px-4 text-left">Location</th>
+                      <th className="py-3 px-4 text-left">Rating</th>
+                      <th className="py-3 px-4 text-left">Featured</th>
+                      <th className="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {restaurantsList.map(restaurant => (
+                      <tr key={restaurant.id} className="border-b hover:bg-gray-50">
+                        <td className="py-3 px-4">{restaurant.id}</td>
+                        <td className="py-3 px-4">
+                          <img 
+                            src={restaurant.image} 
+                            alt={restaurant.name} 
+                            className="w-16 h-12 object-cover rounded"
+                          />
+                        </td>
+                        <td className="py-3 px-4">
+                          <input 
+                            type="text" 
+                            value={restaurant.name}
+                            onChange={(e) => handleRestaurantDetailUpdate(restaurant.id, 'name', e.target.value)}
+                            className="border-b border-dashed border-gray-300 bg-transparent px-1 w-full focus:outline-none focus:border-primary"
+                          />
+                        </td>
+                        <td className="py-3 px-4">{restaurant.cuisine}</td>
+                        <td className="py-3 px-4">{restaurant.location}</td>
+                        <td className="py-3 px-4">
+                          <input 
+                            type="number" 
+                            value={restaurant.rating}
+                            min="1"
+                            max="5"
+                            step="0.1"
+                            onChange={(e) => handleRestaurantDetailUpdate(restaurant.id, 'rating', parseFloat(e.target.value))}
+                            className="border-b border-dashed border-gray-300 bg-transparent px-1 w-16 focus:outline-none focus:border-primary"
+                          />
+                        </td>
+                        <td className="py-3 px-4">
+                          <Switch 
+                            checked={restaurant.featured} 
+                            onCheckedChange={(checked) => handleToggleRestaurantFeature(restaurant.id, checked)} 
+                          />
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <div className="flex gap-2 justify-end">
+                            <Dialog open={isEditRestaurantOpen && currentRestaurant?.id === restaurant.id} onOpenChange={(open) => {
+                              setIsEditRestaurantOpen(open);
+                              if (open) setCurrentRestaurant(restaurant);
+                            }}>
+                              <DialogTrigger asChild>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                >
+                                  <Edit className="h-4 w-4 mr-1" />
+                                  Edit
+                                </Button>
+                              </DialogTrigger>
+                              <PropertyForm
+                                open={isEditRestaurantOpen && currentRestaurant?.id === restaurant.id}
+                                onOpenChange={setIsEditRestaurantOpen}
+                                onSubmit={handleEditRestaurant}
+                                defaultValues={restaurant}
+                                title="Edit Restaurant"
+                                fields={restaurantFormFields}
+                              />
+                            </Dialog>
+                            
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button 
+                                  size="sm" 
+                                  variant="destructive"
+                                  onClick={() => setCurrentRestaurant(restaurant)}
+                                >
+                                  Delete
+                                </Button>
+                              </AlertDialogTrigger>
+                              <DeleteConfirmation
+                                title="Delete Restaurant"
+                                description={`Are you sure you want to delete "${restaurant.name}"? This action cannot be undone.`}
+                                onConfirm={handleDeleteRestaurant}
+                              />
+                            </AlertDialog>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </TabsContent>
+            
+            {/* Content for the Cafes tab */}
+            <TabsContent value="cafes">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-medium">Manage Cafes & Map</h2>
+                <Button onClick={handleAddCafe}>
+                  Add New Cafe
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="overflow-y-auto max-h-[500px] pr-2">
+                  <table className="w-full border-collapse">
+                    <thead className="sticky top-0 bg-white">
+                      <tr className="border-b">
+                        <th className="py-3 px-4 text-left">Name</th>
+                        <th className="py-3 px-4 text-left">Location</th>
+                        <th className="py-3 px-4 text-left">Rating</th>
+                        <th className="py-3 px-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {cafesList.map(cafe => (
+                        <tr key={cafe.id} className="border-b hover:bg-gray-50">
+                          <td className="py-3 px-4">{cafe.name}</td>
+                          <td className="py-3 px-4">{cafe.location}</td>
+                          <td className="py-3 px-4">{cafe.rating}</td>
+                          <td className="py-3 px-4 text-right">
+                            <div className="flex gap-2 justify-end">
+                              <Dialog open={isEditCafeOpen && selectedCafe?.id === cafe.id} onOpenChange={(open) => {
+                                setIsEditCafeOpen(open);
+                                if (open) setSelectedCafe(cafe);
+                              }}>
+                                <DialogTrigger asChild>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                  >
+                                    Edit
+                                  </Button>
+                                </DialogTrigger>
+                                <Form form={cafeForm} className="space-y-4 p-4">
+                                  <h2 className="text-lg font-medium">Edit Cafe</h2>
+                                  <FormField
+                                    control={cafeForm.control}
+                                    name="name"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Name</FormLabel>
+                                        <FormControl>
+                                          <Input {...field} />
+                                        </FormControl>
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={cafeForm.control}
+                                    name="location"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Location</FormLabel>
+                                        <FormControl>
+                                          <Input {...field} />
+                                        </FormControl>
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={cafeForm.control}
+                                    name="description"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Description</FormLabel>
+                                        <FormControl>
+                                          <Textarea {...field} />
+                                        </FormControl>
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <FormField
+                                      control={cafeForm.control}
+                                      name="lat"
+                                      render={({ field }) => (
+                                        <FormItem>
+                                          <FormLabel>Latitude</FormLabel>
+                                          <FormControl>
+                                            <Input type="number" step="0.000001" {...field} />
+                                          </FormControl>
+                                        </FormItem>
+                                      )}
+                                    />
+                                    <FormField
+                                      control={cafeForm.control}
+                                      name="lng"
+                                      render={({ field }) => (
+                                        <FormItem>
+                                          <FormLabel>Longitude</FormLabel>
+                                          <FormControl>
+                                            <Input type="number" step="0.000001" {...field} />
+                                          </FormControl>
+                                        </FormItem>
+                                      )}
+                                    />
+                                  </div>
+                                  <FormField
+                                    control={cafeForm.control}
+                                    name="rating"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Rating</FormLabel>
+                                        <FormControl>
+                                          <Input type="number" min="1" max="5" step="0.1" {...field} />
+                                        </FormControl>
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={cafeForm.control}
+                                    name="image"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Image URL</FormLabel>
+                                        <FormControl>
+                                          <Input {...field} />
+                                        </FormControl>
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <div className="flex justify-end gap-2 mt-4">
+                                    <Button type="button" variant="outline" onClick={() => setIsEditCafeOpen(false)}>
+                                      Cancel
+                                    </Button>
+                                    <Button type="button" onClick={cafeForm.handleSubmit(handleEditCafe)}>
+                                      Save Changes
+                                    </Button>
+                                  </div>
+                                </Form>
+                              </Dialog>
+                              
+                              <Button 
+                                size="sm" 
+                                variant="destructive"
+                                onClick={() => handleDeleteCafe(cafe.id)}
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                
+                <div className="border rounded-md overflow-hidden h-[500px]">
+                  <CafeMap 
+                    cafes={mapCafes}
+                    center={[mapSettings.centerLat, mapSettings.centerLng]}
+                    zoom={mapSettings.zoomLevel}
+                    onCafesChange={handleCafeUpdate}
+                  />
+                </div>
+              </div>
+              
+              <div className="mt-6 p-4 border rounded-md">
+                <h3 className="text-lg font-medium mb-4">Map Settings</h3>
+                <Form {...mapForm}>
+                  <form onSubmit={mapForm.handleSubmit(handleMapSettingsUpdate)} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <FormField
+                        control={mapForm.control}
+                        name="mapStyle"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Map Style</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select map style" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="streets">Streets</SelectItem>
+                                <SelectItem value="satellite">Satellite</SelectItem>
+                                <SelectItem value="outdoors">Outdoors</SelectItem>
+                                <SelectItem value="light">Light</SelectItem>
+                                <SelectItem value="dark">Dark</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={mapForm.control}
+                        name="zoomLevel"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Zoom Level</FormLabel>
+                            <FormControl>
+                              <Input type="number" min="1" max="20" {...field} onChange={e => field.onChange(parseInt(e.target.value))} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={mapForm.control}
+                        name="showMarkers"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between space-x-2 space-y-0 rounded-md border p-4">
+                            <FormLabel>Show Markers</FormLabel>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={mapForm.control}
+                        name="centerLat"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Center Latitude</FormLabel>
+                            <FormControl>
+                              <Input type="number" step="0.000001" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={mapForm.control}
+                        name="centerLng"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Center Longitude</FormLabel>
+                            <FormControl>
+                              <Input type="number" step="0.000001" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
+                    <Button type="submit">Save Map Settings</Button>
+                  </form>
+                </Form>
+              </div>
+            </TabsContent>
+            
+            {/* Content for the Bookings tab */}
+            <TabsContent value="bookings">
+              <div className="mb-4">
+                <h2 className="text-xl font-medium">Booking Requests</h2>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="py-3 px-4 text-left">ID</th>
+                      <th className="py-3 px-4 text-left">Name</th>
+                      <th className="py-3 px-4 text-left">Email</th>
+                      <th className="py-3 px-4 text-left">Type</th>
+                      <th className="py-3 px-4 text-left">Date</th>
+                      <th className="py-3 px-4 text-left">Status</th>
+                      <th className="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bookingRequests.map(request => (
+                      <tr key={request.id} className="border-b hover:bg-gray-50">
+                        <td className="py-3 px-4">{request.id}</td>
+                        <td className="py-3 px-4">{request.name}</td>
+                        <td className="py-3 px-4">{request.email}</td>
+                        <td className="py-3 px-4">{request.type}</td>
+                        <td className="py-3 px-4">{request.date}</td>
+                        <td className="py-3 px-4">
+                          <div className="inline-block">
+                            <Select
+                              value={request.status}
+                              onValueChange={(value) => handleUpdateBookingStatus(request.id, value)}
+                            >
+                              <SelectTrigger className="w-32">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="confirmed">Confirmed</SelectItem>
+                                <SelectItem value="declined">Declined</SelectItem>
+                                <SelectItem value="responded">Responded</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <div className="flex gap-2 justify-end">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleRespondToBooking(request.id)}
+                            >
+                              <Send className="h-4 w-4 mr-1" />
+                              Respond
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </TabsContent>
+            
+            {/* Content for the Settings tab */}
+            <TabsContent value="settings">
+              <div className="mb-4">
+                <h2 className="text-xl font-medium">Site Settings</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="siteName">Site Name</Label>
+                    <Input 
+                      id="siteName" 
+                      value={siteSettings.siteName} 
+                      onChange={(e) => setSiteSettings({...siteSettings, siteName: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="contactEmail">Contact Email</Label>
+                    <Input 
+                      id="contactEmail" 
+                      type="email"
+                      value={siteSettings.contactEmail} 
+                      onChange={(e) => setSiteSettings({...siteSettings, contactEmail: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="contactPhone">Contact Phone</Label>
+                    <Input 
+                      id="contactPhone" 
+                      value={siteSettings.contactPhone} 
+                      onChange={(e) => setSiteSettings({...siteSettings, contactPhone: e.target.value})}
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="heroTitle">Hero Title</Label>
+                    <Input 
+                      id="heroTitle" 
+                      value={siteSettings.heroTitle} 
+                      onChange={(e) => setSiteSettings({...siteSettings, heroTitle: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="heroDescription">Hero Description</Label>
+                    <Textarea 
+                      id="heroDescription" 
+                      rows={3}
+                      value={siteSettings.heroDescription} 
+                      onChange={(e) => setSiteSettings({...siteSettings, heroDescription: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="logoUrl">Logo URL</Label>
+                    <Input 
+                      id="logoUrl" 
+                      value={siteSettings.logoUrl} 
+                      onChange={(e) => setSiteSettings({...siteSettings, logoUrl: e.target.value})}
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="primaryColor">Primary Color</Label>
+                    <div className="flex items-center gap-3">
+                      <Input 
+                        id="primaryColor" 
+                        value={siteSettings.primaryColor} 
+                        onChange={(e) => setSiteSettings({...siteSettings, primaryColor: e.target.value})}
+                      />
+                      <div 
+                        className="h-10 w-10 rounded-md border" 
+                        style={{backgroundColor: siteSettings.primaryColor}}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="secondaryColor">Secondary Color</Label>
+                    <div className="flex items-center gap-3">
+                      <Input 
+                        id="secondaryColor" 
+                        value={siteSettings.secondaryColor} 
+                        onChange={(e) => setSiteSettings({...siteSettings, secondaryColor: e.target.value})}
+                      />
+                      <div 
+                        className="h-10 w-10 rounded-md border" 
+                        style={{backgroundColor: siteSettings.secondaryColor}}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between space-x-2 rounded-md border p-4">
+                    <Label htmlFor="showCafeMap">Show Cafe Map on Homepage</Label>
+                    <Switch 
+                      id="showCafeMap"
+                      checked={siteSettings.showCafeMap} 
+                      onCheckedChange={(checked) => setSiteSettings({...siteSettings, showCafeMap: checked})}
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex items-end">
+                  <Button 
+                    onClick={handleSiteSettingsUpdate}
+                    className="mt-4"
+                  >
+                    Save Settings
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </main>
+      
+      <Footer />
+    </div>
+  );
+};
+
+export default AdminDashboard;
