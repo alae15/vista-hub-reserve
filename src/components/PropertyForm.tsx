@@ -99,7 +99,7 @@ export function PropertyForm({
     { name: "type", label: "Type", required: true },
     { name: "price", label: "Price", required: true, type: "number" },
     { name: "image", label: "Image URL", required: true },
-    { name: "description", label: "Description" },
+    { name: "description", label: "Description", type: "textarea" },
   ];
 
   // Don't render anything if dialog is not open
@@ -107,7 +107,7 @@ export function PropertyForm({
     return null;
   }
 
-  // The key Form component is rendered here with proper context
+  // Render the dialog with the form inside
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
@@ -115,6 +115,8 @@ export function PropertyForm({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>Fill in the details below to {property ? "update" : "create"} a property.</DialogDescription>
         </DialogHeader>
+        
+        {/* Ensure Form wraps everything that uses FormField components */}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             {formFields.map((field) => (
