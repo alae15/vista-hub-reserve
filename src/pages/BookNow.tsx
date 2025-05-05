@@ -49,6 +49,7 @@ const BookNow = () => {
       bookingType: "",
       bookingItem: "",
       message: "",
+      date: undefined, // Add date to form state
     },
   });
 
@@ -88,6 +89,12 @@ const BookNow = () => {
       default:
         setBookingItems([]);
     }
+  };
+
+  // Update form date value when calendar date changes
+  const handleDateChange = (selectedDate: Date | undefined) => {
+    setDate(selectedDate);
+    form.setValue("date", selectedDate);
   };
 
   const onSubmit = (data) => {
@@ -181,31 +188,40 @@ const BookNow = () => {
                     )}
                   />
                   
-                  <FormItem>
-                    <FormLabel>Booking Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !date && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {date ? format(date, "PPP") : "Select a date"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={date}
-                          onSelect={setDate}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </FormItem>
+                  <FormField
+                    control={form.control}
+                    name="date"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Booking Date</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                className={cn(
+                                  "w-full justify-start text-left font-normal",
+                                  !date && "text-muted-foreground"
+                                )}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {date ? format(date, "PPP") : "Select a date"}
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar
+                              mode="single"
+                              selected={date}
+                              onSelect={handleDateChange}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
