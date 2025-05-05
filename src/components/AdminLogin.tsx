@@ -28,7 +28,8 @@ const AdminLogin = () => {
           title: "Login successful",
           description: "Welcome to the admin dashboard",
         });
-        navigate("/admin/dashboard");
+        // Ensure we're navigating to the dashboard without any query parameters that might trigger dialogs
+        navigate("/admin/dashboard", { replace: true });
       } else {
         toast({
           title: "Login failed",
