@@ -23,8 +23,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useData } from "@/contexts/DataContext";
 
 // Define interfaces for our forms
-interface Cafe {
-  id?: number;
+interface AdminCafe {
+  id: number;
   name: string;
   lat: number;
   lng: number;
@@ -34,7 +34,7 @@ interface Cafe {
   description?: string;
 }
 
-interface Vehicle {
+interface AdminVehicle {
   id: number;
   title: string;
   type: string;
@@ -54,11 +54,11 @@ interface Vehicle {
 interface AdminRestaurant {
   id: number;
   name: string;
-  image: string;
   cuisine: string;
-  rating: number;
-  priceRange: string;
   location: string;
+  rating: number;
+  image: string;
+  priceRange: string;
   title?: string;
   type?: string;
   price?: number;
@@ -74,25 +74,29 @@ const AdminDashboard = () => {
   
   // Initialize states with context data
   const [propertiesList, setPropertiesList] = useState(allProperties || []);
-  const [vehiclesList, setVehiclesList] = useState<Vehicle[]>(allVehicles || []);
-  const [restaurantsList, setRestaurantsList] = useState<AdminRestaurant[]>(allRestaurants || []);
+  const [vehiclesList, setVehiclesList] = useState<AdminVehicle[]>(() => {
+    return (allVehicles || []).map(vehicle => ({
+      ...vehicle,
+      featured: vehicle.featured || false
+    }));
+  });
   
-  // Update local state when context data changes
-  useEffect(() => {
-    if (allProperties) setPropertiesList(allProperties);
-  }, [allProperties]);
-  
-  useEffect(() => {
-    if (allVehicles) setVehiclesList(allVehicles as Vehicle[]);
-  }, [allVehicles]);
-  
-  useEffect(() => {
-    if (allRestaurants) setRestaurantsList(allRestaurants as AdminRestaurant[]);
-  }, [allRestaurants]);
+  const [restaurantsList, setRestaurantsList] = useState<AdminRestaurant[]>(() => {
+    return (allRestaurants || []).map(restaurant => ({
+      ...restaurant,
+      priceRange: restaurant.priceRange || "$$",
+      featured: restaurant.featured || false
+    }));
+  });
   
   // Initialize cafes state from context or localStorage
-  const [cafesList, setCafesList] = useState<Cafe[]>(() => {
-    if (allCafes && allCafes.length > 0) return allCafes as Cafe[];
+  const [cafesList, setCafesList] = useState<AdminCafe[]>(() => {
+    if (allCafes && allCafes.length > 0) {
+      return allCafes.map(cafe => ({
+        ...cafe,
+        id: cafe.id ?? Math.random() * 1000 | 0
+      }));
+    }
     
     const savedCafes = localStorage.getItem('cafesList');
     return savedCafes ? JSON.parse(savedCafes) : [
@@ -152,7 +156,7 @@ const AdminDashboard = () => {
   const [isAddVehicleOpen, setIsAddVehicleOpen] = useState(false);
   const [isEditVehicleOpen, setIsEditVehicleOpen] = useState(false);
   const [isDeleteVehicleOpen, setIsDeleteVehicleOpen] = useState(false);
-  const [currentVehicle, setCurrentVehicle] = useState<Vehicle | null>(null);
+  const [currentVehicle, setCurrentVehicle] = useState<AdminVehicle | null>(null);
   
   // State for restaurant operations
   const [isAddRestaurantOpen, setIsAddRestaurantOpen] = useState(false);
@@ -161,7 +165,7 @@ const AdminDashboard = () => {
   const [currentRestaurant, setCurrentRestaurant] = useState<AdminRestaurant | null>(null);
   
   // State for cafe operations
-  const [selectedCafe, setSelectedCafe] = useState<Cafe | null>(null);
+  const [selectedCafe, setSelectedCafe] = useState<AdminCafe | null>(null);
   const [isEditCafeOpen, setIsEditCafeOpen] = useState(false);
   
   // State for tabs
@@ -173,13 +177,14 @@ const AdminDashboard = () => {
   });
 
   // Form for editing cafe
-  const cafeForm = useForm<Cafe>({
+  const cafeForm = useForm<AdminCafe>({
     defaultValues: selectedCafe || {
       name: "",
       lat: 0,
       lng: 0,
       rating: 0,
-      description: ""
+      description: "",
+      id: 0
     }
   });
 
@@ -568,7 +573,7 @@ const AdminDashboard = () => {
     });
   };
   
-  const handleEditCafe = (data: Cafe) => {
+  const handleEditCafe = (data: AdminCafe) => {
     if (!selectedCafe) return;
     
     const updatedCafes = cafesList.map(cafe => 
@@ -674,6 +679,14 @@ const AdminDashboard = () => {
     { name: "rating", label: "Rating", type: "number", min: 1, max: 5, step: 0.1 },
     { name: "image", label: "Image URL", required: true }
   ];
+  
+  // Helper function to convert a Property to PropertyFormData
+  const propertyToFormData = (property: any): PropertyFormData => {
+    return {
+      ...property,
+      price: property.price.toString()
+    };
+  };
   
   return (
     <div className="flex flex-col min-h-screen">
@@ -851,6 +864,7 @@ const AdminDashboard = () => {
                                 <Button 
                                   size="sm" 
                                   variant="outline"
+                                  onClick={() => setCurrentProperty(propertyToFormData(property))}
                                 >
                                   <Edit className="h-4 w-4 mr-1" />
                                   Edit
@@ -860,7 +874,7 @@ const AdminDashboard = () => {
                                 open={true}
                                 onOpenChange={() => {}}
                                 onSubmit={handleEditProperty}
-                                property={property}
+                                property={currentProperty}
                                 title="Edit Property"
                               />
                             </Dialog>
@@ -868,13 +882,13 @@ const AdminDashboard = () => {
                             <AlertDialog open={isDeletePropertyOpen && currentProperty?.id === property.id} 
                                         onOpenChange={(open) => {
                                           setIsDeletePropertyOpen(open);
-                                          if (open) setCurrentProperty(property);
+                                          if (open) setCurrentProperty(propertyToFormData(property));
                                         }}>
                               <AlertDialogTrigger asChild>
                                 <Button 
                                   size="sm" 
                                   variant="destructive"
-                                  onClick={() => setCurrentProperty(property)}
+                                  onClick={() => setCurrentProperty(propertyToFormData(property))}
                                 >
                                   Delete
                                 </Button>
@@ -988,7 +1002,7 @@ const AdminDashboard = () => {
                                 open={isEditVehicleOpen && currentVehicle?.id === vehicle.id}
                                 onOpenChange={setIsEditVehicleOpen}
                                 onSubmit={handleEditVehicle}
-                                property={vehicle}
+                                property={currentVehicle}
                                 title="Edit Vehicle"
                                 fields={vehicleFormFields}
                               />
@@ -1103,11 +1117,7 @@ const AdminDashboard = () => {
                               setIsEditRestaurantOpen(open);
                               if (open) {
                                 // Convert the restaurant to the format expected by the form
-                                const formData = {
-                                  ...restaurant,
-                                  id: restaurant.id
-                                };
-                                setCurrentRestaurant(formData);
+                                setCurrentRestaurant(restaurant);
                               }
                             }}>
                               <DialogTrigger asChild>
@@ -1123,7 +1133,7 @@ const AdminDashboard = () => {
                                 open={isEditRestaurantOpen && currentRestaurant?.id === restaurant.id}
                                 onOpenChange={setIsEditRestaurantOpen}
                                 onSubmit={handleEditRestaurant}
-                                property={currentRestaurant || undefined}
+                                property={currentRestaurant}
                                 title="Edit Restaurant"
                                 fields={restaurantFormFields}
                               />
@@ -1134,11 +1144,7 @@ const AdminDashboard = () => {
                                            setIsDeleteRestaurantOpen(open);
                                            if (open) {
                                              // Convert the restaurant to the format expected by the delete handler
-                                             const formData = {
-                                               ...restaurant,
-                                               id: restaurant.id
-                                             };
-                                             setCurrentRestaurant(formData);
+                                             setCurrentRestaurant(restaurant);
                                            }
                                          }}>
                               <AlertDialogTrigger asChild>
@@ -1209,104 +1215,102 @@ const AdminDashboard = () => {
                                 </DialogTrigger>
                                 <div className="space-y-4 p-4">
                                   <h2 className="text-lg font-medium">Edit Cafe</h2>
-                                  <Form {...cafeForm}>
-                                    <form onSubmit={cafeForm.handleSubmit(handleEditCafe)} className="space-y-4">
+                                  <form onSubmit={cafeForm.handleSubmit(handleEditCafe)} className="space-y-4">
+                                    <FormField
+                                      control={cafeForm.control}
+                                      name="name"
+                                      render={({ field }) => (
+                                        <FormItem>
+                                          <FormLabel>Name</FormLabel>
+                                          <FormControl>
+                                            <Input {...field} />
+                                          </FormControl>
+                                        </FormItem>
+                                      )}
+                                    />
+                                    <FormField
+                                      control={cafeForm.control}
+                                      name="location"
+                                      render={({ field }) => (
+                                        <FormItem>
+                                          <FormLabel>Location</FormLabel>
+                                          <FormControl>
+                                            <Input {...field} />
+                                          </FormControl>
+                                        </FormItem>
+                                      )}
+                                    />
+                                    <FormField
+                                      control={cafeForm.control}
+                                      name="description"
+                                      render={({ field }) => (
+                                        <FormItem>
+                                          <FormLabel>Description</FormLabel>
+                                          <FormControl>
+                                            <Textarea {...field} />
+                                          </FormControl>
+                                        </FormItem>
+                                      )}
+                                    />
+                                    <div className="grid grid-cols-2 gap-4">
                                       <FormField
                                         control={cafeForm.control}
-                                        name="name"
+                                        name="lat"
                                         render={({ field }) => (
                                           <FormItem>
-                                            <FormLabel>Name</FormLabel>
+                                            <FormLabel>Latitude</FormLabel>
                                             <FormControl>
-                                              <Input {...field} />
+                                              <Input type="number" step="0.000001" {...field} />
                                             </FormControl>
                                           </FormItem>
                                         )}
                                       />
                                       <FormField
                                         control={cafeForm.control}
-                                        name="location"
+                                        name="lng"
                                         render={({ field }) => (
                                           <FormItem>
-                                            <FormLabel>Location</FormLabel>
+                                            <FormLabel>Longitude</FormLabel>
                                             <FormControl>
-                                              <Input {...field} />
+                                              <Input type="number" step="0.000001" {...field} />
                                             </FormControl>
                                           </FormItem>
                                         )}
                                       />
-                                      <FormField
-                                        control={cafeForm.control}
-                                        name="description"
-                                        render={({ field }) => (
-                                          <FormItem>
-                                            <FormLabel>Description</FormLabel>
-                                            <FormControl>
-                                              <Textarea {...field} />
-                                            </FormControl>
-                                          </FormItem>
-                                        )}
-                                      />
-                                      <div className="grid grid-cols-2 gap-4">
-                                        <FormField
-                                          control={cafeForm.control}
-                                          name="lat"
-                                          render={({ field }) => (
-                                            <FormItem>
-                                              <FormLabel>Latitude</FormLabel>
-                                              <FormControl>
-                                                <Input type="number" step="0.000001" {...field} />
-                                              </FormControl>
-                                            </FormItem>
-                                          )}
-                                        />
-                                        <FormField
-                                          control={cafeForm.control}
-                                          name="lng"
-                                          render={({ field }) => (
-                                            <FormItem>
-                                              <FormLabel>Longitude</FormLabel>
-                                              <FormControl>
-                                                <Input type="number" step="0.000001" {...field} />
-                                              </FormControl>
-                                            </FormItem>
-                                          )}
-                                        />
-                                      </div>
-                                      <FormField
-                                        control={cafeForm.control}
-                                        name="rating"
-                                        render={({ field }) => (
-                                          <FormItem>
-                                            <FormLabel>Rating</FormLabel>
-                                            <FormControl>
-                                              <Input type="number" min="1" max="5" step="0.1" {...field} />
-                                            </FormControl>
-                                          </FormItem>
-                                        )}
-                                      />
-                                      <FormField
-                                        control={cafeForm.control}
-                                        name="image"
-                                        render={({ field }) => (
-                                          <FormItem>
-                                            <FormLabel>Image URL</FormLabel>
-                                            <FormControl>
-                                              <Input {...field} />
-                                            </FormControl>
-                                          </FormItem>
-                                        )}
-                                      />
-                                      <div className="flex justify-end gap-2 mt-4">
-                                        <Button type="button" variant="outline" onClick={() => setIsEditCafeOpen(false)}>
-                                          Cancel
-                                        </Button>
-                                        <Button type="submit">
-                                          Save Changes
-                                        </Button>
-                                      </div>
-                                    </form>
-                                  </Form>
+                                    </div>
+                                    <FormField
+                                      control={cafeForm.control}
+                                      name="rating"
+                                      render={({ field }) => (
+                                        <FormItem>
+                                          <FormLabel>Rating</FormLabel>
+                                          <FormControl>
+                                            <Input type="number" min="1" max="5" step="0.1" {...field} />
+                                          </FormControl>
+                                        </FormItem>
+                                      )}
+                                    />
+                                    <FormField
+                                      control={cafeForm.control}
+                                      name="image"
+                                      render={({ field }) => (
+                                        <FormItem>
+                                          <FormLabel>Image URL</FormLabel>
+                                          <FormControl>
+                                            <Input {...field} />
+                                          </FormControl>
+                                        </FormItem>
+                                      )}
+                                    />
+                                    <div className="flex justify-end gap-2 mt-4">
+                                      <Button type="button" variant="outline" onClick={() => setIsEditCafeOpen(false)}>
+                                        Cancel
+                                      </Button>
+                                      <Button type="submit">
+                                        Save Changes
+                                      </Button>
+                                    </div>
+                                  </form>
                                 </div>
                               </Dialog>
                               

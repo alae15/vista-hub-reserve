@@ -2,7 +2,7 @@
 import { createContext, useState, useContext, useEffect, ReactNode } from "react";
 
 // Define your data types
-interface Property {
+export interface Property {
   id: number;
   title: string;
   location: string;
@@ -19,7 +19,7 @@ interface Property {
   featured?: boolean;
 }
 
-interface Vehicle {
+export interface Vehicle {
   id: number;
   title: string;
   type: string;
@@ -29,9 +29,12 @@ interface Vehicle {
   transmission?: string;
   seats?: number;
   description?: string;
+  features?: string[];
+  panoramaImages?: string[];
+  featured?: boolean;
 }
 
-interface Restaurant {
+export interface Restaurant {
   id: number;
   name: string;
   cuisine: string;
@@ -39,10 +42,12 @@ interface Restaurant {
   rating: number;
   image: string;
   description?: string;
-  priceRange?: string;
+  priceRange: string;
+  menu?: { category: string; items: { name: string; price: number; description: string }[] }[];
+  featured?: boolean;
 }
 
-interface Cafe {
+export interface Cafe {
   id: number;
   name: string;
   location?: string;
@@ -159,7 +164,8 @@ const defaultVehicles: Vehicle[] = [
     image: "/images/car1.jpg",
     transmission: "automatic",
     seats: 5,
-    description: "Fuel-efficient compact car, perfect for city driving and short trips."
+    description: "Fuel-efficient compact car, perfect for city driving and short trips.",
+    featured: false,
   },
   {
     id: 2,
@@ -170,7 +176,8 @@ const defaultVehicles: Vehicle[] = [
     image: "/images/car2.jpg",
     transmission: "automatic",
     seats: 7,
-    description: "Spacious and comfortable SUV for family trips and exploring the region."
+    description: "Spacious and comfortable SUV for family trips and exploring the region.",
+    featured: false,
   },
   {
     id: 3,
@@ -181,7 +188,8 @@ const defaultVehicles: Vehicle[] = [
     image: "/images/motorcycle1.jpg",
     transmission: "manual",
     seats: 2,
-    description: "Fast and agile motorcycle for exciting rides along the coastal roads."
+    description: "Fast and agile motorcycle for exciting rides along the coastal roads.",
+    featured: false,
   }
 ];
 
@@ -194,7 +202,8 @@ const defaultRestaurants: Restaurant[] = [
     rating: 4.7,
     image: "/images/restaurant1.jpg",
     priceRange: "$$",
-    description: "Authentic Moroccan cuisine with traditional decor and live music on weekends."
+    description: "Authentic Moroccan cuisine with traditional decor and live music on weekends.",
+    featured: false,
   },
   {
     id: 2,
@@ -204,7 +213,8 @@ const defaultRestaurants: Restaurant[] = [
     rating: 4.8,
     image: "/images/restaurant2.jpg",
     priceRange: "$$$",
-    description: "Fresh seafood and Mediterranean specialties with a beautiful view of the sea."
+    description: "Fresh seafood and Mediterranean specialties with a beautiful view of the sea.",
+    featured: false,
   },
   {
     id: 3,
@@ -214,7 +224,8 @@ const defaultRestaurants: Restaurant[] = [
     rating: 4.6,
     image: "/images/restaurant3.jpg",
     priceRange: "$$",
-    description: "Specializing in locally caught seafood prepared with both traditional and modern techniques."
+    description: "Specializing in locally caught seafood prepared with both traditional and modern techniques.",
+    featured: false,
   }
 ];
 
