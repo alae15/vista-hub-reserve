@@ -22,6 +22,7 @@ import { useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
 import { useData } from "@/contexts/DataContext";
 
+// Define interfaces for our forms
 interface Cafe {
   id?: number;
   name: string;
@@ -31,6 +32,34 @@ interface Cafe {
   location?: string;
   image?: string;
   description?: string;
+}
+
+interface Vehicle {
+  id: number;
+  title: string;
+  type: string;
+  price: number;
+  image: string;
+  year: number;
+  seats?: number;
+  transmission?: string;
+  description?: string;
+  features?: string[];
+  panoramaImages?: string[];
+  featured?: boolean;
+}
+
+interface Restaurant {
+  id: number;
+  name: string;
+  image: string;
+  cuisine: string;
+  rating: number;
+  priceRange: string;
+  location: string;
+  description?: string;
+  menu?: { category: string; items: { name: string; price: number; description: string }[] }[];
+  featured?: boolean;
 }
 
 const AdminDashboard = () => {
@@ -113,7 +142,21 @@ const AdminDashboard = () => {
   const [isEditPropertyOpen, setIsEditPropertyOpen] = useState(false);
   const [isDeletePropertyOpen, setIsDeletePropertyOpen] = useState(false);
   const [currentProperty, setCurrentProperty] = useState(null);
-  const [selectedCafe, setSelectedCafe] = useState(null);
+  
+  // State for vehicle operations
+  const [isAddVehicleOpen, setIsAddVehicleOpen] = useState(false);
+  const [isEditVehicleOpen, setIsEditVehicleOpen] = useState(false);
+  const [isDeleteVehicleOpen, setIsDeleteVehicleOpen] = useState(false);
+  const [currentVehicle, setCurrentVehicle] = useState<Vehicle | null>(null);
+  
+  // State for restaurant operations
+  const [isAddRestaurantOpen, setIsAddRestaurantOpen] = useState(false);
+  const [isEditRestaurantOpen, setIsEditRestaurantOpen] = useState(false);
+  const [isDeleteRestaurantOpen, setIsDeleteRestaurantOpen] = useState(false);
+  const [currentRestaurant, setCurrentRestaurant] = useState<Restaurant | null>(null);
+  
+  // State for cafe operations
+  const [selectedCafe, setSelectedCafe] = useState<Cafe | null>(null);
   const [isEditCafeOpen, setIsEditCafeOpen] = useState(false);
   
   // State for tabs
@@ -134,6 +177,10 @@ const AdminDashboard = () => {
       description: ""
     }
   });
+
+  // Forms for vehicles and restaurants
+  const vehicleForm = useForm();
+  const restaurantForm = useForm();
 
   // Save data to context whenever it changes
   useEffect(() => {
@@ -281,6 +328,200 @@ const AdminDashboard = () => {
     });
   };
   
+  // Vehicle operations
+  const handleAddVehicle = (data) => {
+    const newVehicle = {
+      ...data,
+      id: vehiclesList.length + 1,
+      price: parseInt(data.price),
+      year: parseInt(data.year),
+      seats: data.seats ? parseInt(data.seats) : undefined,
+      panoramaImages: [],
+      features: [],
+      description: "",
+      featured: false
+    };
+    
+    const updatedVehicles = [...vehiclesList, newVehicle];
+    setVehiclesList(updatedVehicles);
+    updateVehicles(updatedVehicles);
+    
+    toast({
+      title: "Vehicle added",
+      description: "The vehicle has been added successfully.",
+    });
+    setIsAddVehicleOpen(false);
+  };
+  
+  const handleEditVehicle = (data) => {
+    if (!currentVehicle) return;
+    
+    const updatedVehicles = vehiclesList.map(vehicle => 
+      vehicle.id === currentVehicle.id ? 
+        { 
+          ...vehicle, 
+          title: data.title,
+          type: data.type,
+          price: parseInt(data.price),
+          year: parseInt(data.year),
+          seats: data.seats ? parseInt(data.seats) : undefined,
+          transmission: data.transmission,
+          image: data.image
+        } : 
+        vehicle
+    );
+    
+    setVehiclesList(updatedVehicles);
+    updateVehicles(updatedVehicles);
+    
+    toast({
+      title: "Vehicle updated",
+      description: "The vehicle has been updated successfully.",
+    });
+    setIsEditVehicleOpen(false);
+  };
+  
+  const handleToggleVehicleFeature = (id, featured) => {
+    const updatedVehicles = vehiclesList.map(vehicle => 
+      vehicle.id === id ? { ...vehicle, featured } : vehicle
+    );
+    
+    setVehiclesList(updatedVehicles);
+    updateVehicles(updatedVehicles);
+    
+    toast({
+      title: featured ? "Vehicle featured" : "Vehicle unfeatured",
+      description: `Vehicle #${id} has been ${featured ? "added to" : "removed from"} featured vehicles.`,
+    });
+  };
+  
+  const handleDeleteVehicle = () => {
+    if (!currentVehicle) return;
+    
+    const updatedVehicles = vehiclesList.filter(
+      vehicle => vehicle.id !== currentVehicle.id
+    );
+    
+    setVehiclesList(updatedVehicles);
+    updateVehicles(updatedVehicles);
+    setIsDeleteVehicleOpen(false);
+    
+    toast({
+      title: "Vehicle deleted",
+      description: `Vehicle #${currentVehicle.id} has been deleted.`,
+      variant: "destructive",
+    });
+  };
+  
+  const handleVehicleDetailUpdate = (id, field, value) => {
+    const updatedVehicles = vehiclesList.map(vehicle => 
+      vehicle.id === id ? { ...vehicle, [field]: value } : vehicle
+    );
+    
+    setVehiclesList(updatedVehicles);
+    updateVehicles(updatedVehicles);
+    
+    toast({
+      title: "Vehicle updated",
+      description: `Vehicle #${id} ${field} has been updated.`,
+    });
+  };
+  
+  // Restaurant operations
+  const handleAddRestaurant = (data) => {
+    const newRestaurant = {
+      ...data,
+      id: restaurantsList.length + 1,
+      rating: parseFloat(data.rating) || 4.0,
+      menu: [],
+      description: "",
+      featured: false
+    };
+    
+    const updatedRestaurants = [...restaurantsList, newRestaurant];
+    setRestaurantsList(updatedRestaurants);
+    updateRestaurants(updatedRestaurants);
+    
+    toast({
+      title: "Restaurant added",
+      description: "The restaurant has been added successfully.",
+    });
+    setIsAddRestaurantOpen(false);
+  };
+  
+  const handleEditRestaurant = (data) => {
+    if (!currentRestaurant) return;
+    
+    const updatedRestaurants = restaurantsList.map(restaurant => 
+      restaurant.id === currentRestaurant.id ? 
+        { 
+          ...restaurant, 
+          name: data.name,
+          cuisine: data.cuisine,
+          priceRange: data.priceRange,
+          location: data.location,
+          rating: parseFloat(data.rating) || restaurant.rating,
+          image: data.image
+        } : 
+        restaurant
+    );
+    
+    setRestaurantsList(updatedRestaurants);
+    updateRestaurants(updatedRestaurants);
+    
+    toast({
+      title: "Restaurant updated",
+      description: "The restaurant has been updated successfully.",
+    });
+    setIsEditRestaurantOpen(false);
+  };
+  
+  const handleToggleRestaurantFeature = (id, featured) => {
+    const updatedRestaurants = restaurantsList.map(restaurant => 
+      restaurant.id === id ? { ...restaurant, featured } : restaurant
+    );
+    
+    setRestaurantsList(updatedRestaurants);
+    updateRestaurants(updatedRestaurants);
+    
+    toast({
+      title: featured ? "Restaurant featured" : "Restaurant unfeatured",
+      description: `Restaurant #${id} has been ${featured ? "added to" : "removed from"} featured restaurants.`,
+    });
+  };
+  
+  const handleDeleteRestaurant = () => {
+    if (!currentRestaurant) return;
+    
+    const updatedRestaurants = restaurantsList.filter(
+      restaurant => restaurant.id !== currentRestaurant.id
+    );
+    
+    setRestaurantsList(updatedRestaurants);
+    updateRestaurants(updatedRestaurants);
+    setIsDeleteRestaurantOpen(false);
+    
+    toast({
+      title: "Restaurant deleted",
+      description: `Restaurant #${currentRestaurant.id} has been deleted.`,
+      variant: "destructive",
+    });
+  };
+  
+  const handleRestaurantDetailUpdate = (id, field, value) => {
+    const updatedRestaurants = restaurantsList.map(restaurant => 
+      restaurant.id === id ? { ...restaurant, [field]: value } : restaurant
+    );
+    
+    setRestaurantsList(updatedRestaurants);
+    updateRestaurants(updatedRestaurants);
+    
+    toast({
+      title: "Restaurant updated",
+      description: `Restaurant #${id} ${field} has been updated.`,
+    });
+  };
+  
   // Cafe operations
   const handleCafeUpdate = (updatedCafes) => {
     // Map the cafe data to our expected format
@@ -363,29 +604,6 @@ const AdminDashboard = () => {
     toast({
       title: "Status updated",
       description: `Booking request #${id} is now ${status}.`,
-    });
-  };
-  
-  // Generic handlers for other types
-  const handleAdd = (type) => {
-    toast({
-      title: "Add new item",
-      description: `Form to add a new ${type} would appear here.`,
-    });
-  };
-  
-  const handleEdit = (type, id) => {
-    toast({
-      title: "Edit item",
-      description: `Form to edit ${type} #${id} would appear here.`,
-    });
-  };
-  
-  const handleDelete = (type, id) => {
-    toast({
-      title: "Delete item",
-      description: `Confirmation to delete ${type} #${id} would appear here.`,
-      variant: "destructive",
     });
   };
   
@@ -737,9 +955,26 @@ const AdminDashboard = () => {
             <TabsContent value="vehicles">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-medium">Manage Vehicles</h2>
-                <Button onClick={() => handleAdd("vehicle")}>
+                <Button onClick={() => setIsAddVehicleOpen(true)}>
                   Add New Vehicle
                 </Button>
+                <Dialog open={isAddVehicleOpen} onOpenChange={setIsAddVehicleOpen}>
+                  <PropertyForm
+                    open={isAddVehicleOpen}
+                    onOpenChange={setIsAddVehicleOpen}
+                    onSubmit={handleAddVehicle}
+                    title="Add New Vehicle"
+                    fields={[
+                      { name: 'title', label: 'Title', required: true },
+                      { name: 'type', label: 'Type', required: true },
+                      { name: 'price', label: 'Price Per Day', type: 'number', required: true },
+                      { name: 'year', label: 'Year', type: 'number', required: true },
+                      { name: 'seats', label: 'Seats', type: 'number' },
+                      { name: 'transmission', label: 'Transmission' },
+                      { name: 'image', label: 'Image URL', required: true }
+                    ]}
+                  />
+                </Dialog>
               </div>
               
               <div className="overflow-x-auto">
@@ -752,6 +987,7 @@ const AdminDashboard = () => {
                       <th className="py-3 px-4 text-left">Type</th>
                       <th className="py-3 px-4 text-left">Year</th>
                       <th className="py-3 px-4 text-left">Price</th>
+                      <th className="py-3 px-4 text-left">Featured</th>
                       <th className="py-3 px-4 text-right">Actions</th>
                     </tr>
                   </thead>
@@ -766,26 +1002,114 @@ const AdminDashboard = () => {
                             className="w-16 h-12 object-cover rounded"
                           />
                         </td>
-                        <td className="py-3 px-4">{vehicle.title}</td>
+                        <td className="py-3 px-4">
+                          <input 
+                            type="text" 
+                            value={vehicle.title}
+                            onChange={(e) => handleVehicleDetailUpdate(vehicle.id, 'title', e.target.value)}
+                            className="border-b border-dashed border-gray-300 bg-transparent px-1 w-full focus:outline-none focus:border-primary"
+                          />
+                        </td>
                         <td className="py-3 px-4">{vehicle.type}</td>
                         <td className="py-3 px-4">{vehicle.year}</td>
-                        <td className="py-3 px-4">${vehicle.price}/day</td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center">
+                            $
+                            <input 
+                              type="number" 
+                              value={vehicle.price}
+                              onChange={(e) => handleVehicleDetailUpdate(vehicle.id, 'price', parseInt(e.target.value))}
+                              className="border-b border-dashed border-gray-300 bg-transparent px-1 w-20 focus:outline-none focus:border-primary"
+                            />
+                            <span className="text-sm text-muted-foreground">/day</span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <Switch 
+                            checked={vehicle.featured || false} 
+                            onCheckedChange={(checked) => handleToggleVehicleFeature(vehicle.id, checked)} 
+                          />
+                        </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex gap-2 justify-end">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleEdit("vehicle", vehicle.id)}
-                            >
-                              Edit
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="destructive"
-                              onClick={() => handleDelete("vehicle", vehicle.id)}
-                            >
-                              Delete
-                            </Button>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => {
+                                    setCurrentVehicle({
+                                      id: vehicle.id,
+                                      title: vehicle.title,
+                                      type: vehicle.type,
+                                      price: vehicle.price,
+                                      year: vehicle.year,
+                                      seats: vehicle.seats,
+                                      transmission: vehicle.transmission,
+                                      image: vehicle.image,
+                                      description: vehicle.description || '',
+                                      features: vehicle.features || [],
+                                      panoramaImages: vehicle.panoramaImages || [],
+                                      featured: vehicle.featured || false
+                                    });
+                                    setIsEditVehicleOpen(true);
+                                  }}
+                                >
+                                  Edit
+                                </Button>
+                              </DialogTrigger>
+                              <PropertyForm
+                                open={isEditVehicleOpen}
+                                onOpenChange={setIsEditVehicleOpen}
+                                onSubmit={handleEditVehicle}
+                                property={currentVehicle}
+                                title="Edit Vehicle"
+                                fields={[
+                                  { name: 'title', label: 'Title', required: true },
+                                  { name: 'type', label: 'Type', required: true },
+                                  { name: 'price', label: 'Price Per Day', type: 'number', required: true },
+                                  { name: 'year', label: 'Year', type: 'number', required: true },
+                                  { name: 'seats', label: 'Seats', type: 'number' },
+                                  { name: 'transmission', label: 'Transmission' },
+                                  { name: 'image', label: 'Image URL', required: true }
+                                ]}
+                              />
+                            </Dialog>
+                            
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button 
+                                  size="sm" 
+                                  variant="destructive"
+                                  onClick={() => {
+                                    setCurrentVehicle({
+                                      id: vehicle.id,
+                                      title: vehicle.title,
+                                      type: vehicle.type,
+                                      price: vehicle.price,
+                                      year: vehicle.year,
+                                      seats: vehicle.seats || 0,
+                                      transmission: vehicle.transmission || '',
+                                      image: vehicle.image,
+                                      description: vehicle.description || '',
+                                      features: vehicle.features || [],
+                                      panoramaImages: vehicle.panoramaImages || [],
+                                      featured: vehicle.featured || false
+                                    });
+                                    setIsDeleteVehicleOpen(true);
+                                  }}
+                                >
+                                  Delete
+                                </Button>
+                              </AlertDialogTrigger>
+                              <DeleteConfirmation
+                                open={isDeleteVehicleOpen}
+                                onOpenChange={setIsDeleteVehicleOpen}
+                                onConfirm={handleDeleteVehicle}
+                                title="Delete Vehicle"
+                                description={`Are you sure you want to delete "${currentVehicle?.title}"? This action cannot be undone.`}
+                              />
+                            </AlertDialog>
                           </div>
                         </td>
                       </tr>
@@ -793,15 +1117,64 @@ const AdminDashboard = () => {
                   </tbody>
                 </table>
               </div>
+              
+              {/* Vehicle Description Editor */}
+              <div className="mt-8">
+                <h3 className="text-lg font-medium mb-4">Vehicle Descriptions</h3>
+                <div className="space-y-4">
+                  {vehiclesList.map(vehicle => (
+                    <div key={`desc-${vehicle.id}`} className="bg-gray-50 p-4 rounded-lg border">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-medium">{vehicle.title}</h4>
+                        <div className="text-sm text-muted-foreground">ID: {vehicle.id}</div>
+                      </div>
+                      <Textarea 
+                        value={vehicle.description || ''}
+                        onChange={(e) => handleVehicleDetailUpdate(vehicle.id, 'description', e.target.value)}
+                        placeholder="Enter vehicle description..."
+                        className="min-h-[100px]"
+                      />
+                      <div className="mt-4">
+                        <div className="text-sm font-medium mb-2">Features (comma-separated)</div>
+                        <Input
+                          value={vehicle.features?.join(', ') || ''}
+                          onChange={(e) => handleVehicleDetailUpdate(
+                            vehicle.id, 
+                            'features', 
+                            e.target.value.split(',').map(item => item.trim())
+                          )}
+                          placeholder="Air Conditioning, GPS, Bluetooth, etc."
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </TabsContent>
             
             {/* Content for the Restaurants tab */}
             <TabsContent value="restaurants">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-medium">Manage Restaurants</h2>
-                <Button onClick={() => handleAdd("restaurant")}>
+                <Button onClick={() => setIsAddRestaurantOpen(true)}>
                   Add New Restaurant
                 </Button>
+                <Dialog open={isAddRestaurantOpen} onOpenChange={setIsAddRestaurantOpen}>
+                  <PropertyForm
+                    open={isAddRestaurantOpen}
+                    onOpenChange={setIsAddRestaurantOpen}
+                    onSubmit={handleAddRestaurant}
+                    title="Add New Restaurant"
+                    fields={[
+                      { name: 'name', label: 'Name', required: true },
+                      { name: 'cuisine', label: 'Cuisine', required: true },
+                      { name: 'priceRange', label: 'Price Range', required: true },
+                      { name: 'location', label: 'Location', required: true },
+                      { name: 'rating', label: 'Rating (0-5)', type: 'number', min: 0, max: 5, step: 0.1 },
+                      { name: 'image', label: 'Image URL', required: true }
+                    ]}
+                  />
+                </Dialog>
               </div>
               
               <div className="overflow-x-auto">
@@ -813,7 +1186,9 @@ const AdminDashboard = () => {
                       <th className="py-3 px-4 text-left">Name</th>
                       <th className="py-3 px-4 text-left">Cuisine</th>
                       <th className="py-3 px-4 text-left">Location</th>
+                      <th className="py-3 px-4 text-left">Price Range</th>
                       <th className="py-3 px-4 text-left">Rating</th>
+                      <th className="py-3 px-4 text-left">Featured</th>
                       <th className="py-3 px-4 text-right">Actions</th>
                     </tr>
                   </thead>
@@ -828,32 +1203,136 @@ const AdminDashboard = () => {
                             className="w-16 h-12 object-cover rounded"
                           />
                         </td>
-                        <td className="py-3 px-4">{restaurant.name}</td>
+                        <td className="py-3 px-4">
+                          <input 
+                            type="text" 
+                            value={restaurant.name}
+                            onChange={(e) => handleRestaurantDetailUpdate(restaurant.id, 'name', e.target.value)}
+                            className="border-b border-dashed border-gray-300 bg-transparent px-1 w-full focus:outline-none focus:border-primary"
+                          />
+                        </td>
                         <td className="py-3 px-4">{restaurant.cuisine}</td>
                         <td className="py-3 px-4">{restaurant.location}</td>
-                        <td className="py-3 px-4">{restaurant.rating.toFixed(1)}</td>
+                        <td className="py-3 px-4">{restaurant.priceRange}</td>
+                        <td className="py-3 px-4">
+                          <input 
+                            type="number" 
+                            value={restaurant.rating}
+                            min="0"
+                            max="5"
+                            step="0.1"
+                            onChange={(e) => handleRestaurantDetailUpdate(restaurant.id, 'rating', parseFloat(e.target.value))}
+                            className="border-b border-dashed border-gray-300 bg-transparent px-1 w-16 focus:outline-none focus:border-primary"
+                          />
+                        </td>
+                        <td className="py-3 px-4">
+                          <Switch 
+                            checked={restaurant.featured || false} 
+                            onCheckedChange={(checked) => handleToggleRestaurantFeature(restaurant.id, checked)} 
+                          />
+                        </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex gap-2 justify-end">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleEdit("restaurant", restaurant.id)}
-                            >
-                              Edit
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="destructive"
-                              onClick={() => handleDelete("restaurant", restaurant.id)}
-                            >
-                              Delete
-                            </Button>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => {
+                                    setCurrentRestaurant({
+                                      id: restaurant.id,
+                                      name: restaurant.name,
+                                      cuisine: restaurant.cuisine,
+                                      location: restaurant.location,
+                                      priceRange: restaurant.priceRange,
+                                      rating: restaurant.rating,
+                                      image: restaurant.image,
+                                      description: restaurant.description || '',
+                                      menu: restaurant.menu || [],
+                                      featured: restaurant.featured || false
+                                    });
+                                    setIsEditRestaurantOpen(true);
+                                  }}
+                                >
+                                  Edit
+                                </Button>
+                              </DialogTrigger>
+                              <PropertyForm
+                                open={isEditRestaurantOpen}
+                                onOpenChange={setIsEditRestaurantOpen}
+                                onSubmit={handleEditRestaurant}
+                                property={currentRestaurant}
+                                title="Edit Restaurant"
+                                fields={[
+                                  { name: 'name', label: 'Name', required: true },
+                                  { name: 'cuisine', label: 'Cuisine', required: true },
+                                  { name: 'priceRange', label: 'Price Range', required: true },
+                                  { name: 'location', label: 'Location', required: true },
+                                  { name: 'rating', label: 'Rating (0-5)', type: 'number', min: 0, max: 5, step: 0.1 },
+                                  { name: 'image', label: 'Image URL', required: true }
+                                ]}
+                              />
+                            </Dialog>
+                            
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button 
+                                  size="sm" 
+                                  variant="destructive"
+                                  onClick={() => {
+                                    setCurrentRestaurant({
+                                      id: restaurant.id,
+                                      name: restaurant.name,
+                                      cuisine: restaurant.cuisine,
+                                      location: restaurant.location,
+                                      priceRange: restaurant.priceRange,
+                                      rating: restaurant.rating,
+                                      image: restaurant.image,
+                                      description: restaurant.description || '',
+                                      menu: restaurant.menu || [],
+                                      featured: restaurant.featured || false
+                                    });
+                                    setIsDeleteRestaurantOpen(true);
+                                  }}
+                                >
+                                  Delete
+                                </Button>
+                              </AlertDialogTrigger>
+                              <DeleteConfirmation
+                                open={isDeleteRestaurantOpen}
+                                onOpenChange={setIsDeleteRestaurantOpen}
+                                onConfirm={handleDeleteRestaurant}
+                                title="Delete Restaurant"
+                                description={`Are you sure you want to delete "${currentRestaurant?.name}"? This action cannot be undone.`}
+                              />
+                            </AlertDialog>
                           </div>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+              </div>
+              
+              {/* Restaurant Description Editor */}
+              <div className="mt-8">
+                <h3 className="text-lg font-medium mb-4">Restaurant Descriptions</h3>
+                <div className="space-y-4">
+                  {restaurantsList.map(restaurant => (
+                    <div key={`desc-${restaurant.id}`} className="bg-gray-50 p-4 rounded-lg border">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-medium">{restaurant.name}</h4>
+                        <div className="text-sm text-muted-foreground">ID: {restaurant.id}</div>
+                      </div>
+                      <Textarea 
+                        value={restaurant.description || ''}
+                        onChange={(e) => handleRestaurantDetailUpdate(restaurant.id, 'description', e.target.value)}
+                        placeholder="Enter restaurant description..."
+                        className="min-h-[100px]"
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             </TabsContent>
             
@@ -877,7 +1356,7 @@ const AdminDashboard = () => {
                       centerLat={mapSettings.centerLat}
                       centerLng={mapSettings.centerLng}
                       zoomLevel={mapSettings.zoomLevel}
-                      editable={true}
+                      isEditable={true}
                     />
                   </div>
                   
