@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -829,3 +830,377 @@ const AdminDashboard = () => {
                         </td>
                         <td className="py-3 px-4">{restaurant.name}</td>
                         <td className="py-3 px-4">{restaurant.cuisine}</td>
+                        <td className="py-3 px-4">{restaurant.location}</td>
+                        <td className="py-3 px-4">{restaurant.rating.toFixed(1)}</td>
+                        <td className="py-3 px-4 text-right">
+                          <div className="flex gap-2 justify-end">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleEdit("restaurant", restaurant.id)}
+                            >
+                              Edit
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="destructive"
+                              onClick={() => handleDelete("restaurant", restaurant.id)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </TabsContent>
+            
+            {/* Content for the Cafes tab */}
+            <TabsContent value="cafes">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-medium">Manage Cafes</h2>
+                <Button onClick={handleAddCafe}>
+                  Add New Cafe
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="text-lg font-medium mb-4">Cafe Locations</h3>
+                  <div className="bg-gray-100 rounded-lg overflow-hidden h-[400px]">
+                    <CafeMap 
+                      cafes={mapCafes as CafeMapCafe[]} 
+                      onCafeUpdate={handleCafeUpdate}
+                      mapStyle={mapSettings.mapStyle}
+                      centerLat={mapSettings.centerLat}
+                      centerLng={mapSettings.centerLng}
+                      zoomLevel={mapSettings.zoomLevel}
+                      editable={true}
+                    />
+                  </div>
+                  
+                  <div className="mt-4">
+                    <h4 className="text-md font-medium mb-2">Map Settings</h4>
+                    <Form {...mapForm}>
+                      <form onSubmit={mapForm.handleSubmit(handleMapSettingsUpdate)} className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="mapStyle">Map Style</Label>
+                            <Select 
+                              defaultValue={mapSettings.mapStyle}
+                              onValueChange={(value) => mapForm.setValue('mapStyle', value)}
+                            >
+                              <SelectTrigger id="mapStyle">
+                                <SelectValue placeholder="Select style" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="streets">Streets</SelectItem>
+                                <SelectItem value="outdoors">Outdoors</SelectItem>
+                                <SelectItem value="satellite">Satellite</SelectItem>
+                                <SelectItem value="dark">Dark</SelectItem>
+                                <SelectItem value="light">Light</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label htmlFor="zoomLevel">Zoom Level</Label>
+                            <Input 
+                              id="zoomLevel"
+                              type="number"
+                              min="10"
+                              max="18"
+                              {...mapForm.register('zoomLevel', { valueAsNumber: true })}
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="centerLat">Center Latitude</Label>
+                            <Input 
+                              id="centerLat"
+                              type="number"
+                              step="0.000001"
+                              {...mapForm.register('centerLat', { valueAsNumber: true })}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="centerLng">Center Longitude</Label>
+                            <Input 
+                              id="centerLng"
+                              type="number"
+                              step="0.000001"
+                              {...mapForm.register('centerLng', { valueAsNumber: true })}
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="showMarkers"
+                            checked={mapSettings.showMarkers}
+                            onCheckedChange={(checked) => {
+                              mapForm.setValue('showMarkers', checked);
+                              setMapSettings({...mapSettings, showMarkers: checked});
+                            }}
+                          />
+                          <Label htmlFor="showMarkers">Show Markers</Label>
+                        </div>
+                        
+                        <Button type="submit">Save Map Settings</Button>
+                      </form>
+                    </Form>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-medium mb-4">Cafe List</h3>
+                  <div className="overflow-y-auto max-h-[500px]">
+                    <table className="w-full border-collapse">
+                      <thead className="sticky top-0 bg-white">
+                        <tr className="border-b">
+                          <th className="py-3 px-4 text-left">Name</th>
+                          <th className="py-3 px-4 text-left">Location</th>
+                          <th className="py-3 px-4 text-left">Rating</th>
+                          <th className="py-3 px-4 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {cafesList.map((cafe) => (
+                          <tr key={cafe.id} className="border-b hover:bg-gray-50">
+                            <td className="py-3 px-4">{cafe.name}</td>
+                            <td className="py-3 px-4">{cafe.location}</td>
+                            <td className="py-3 px-4">{cafe.rating.toFixed(1)}</td>
+                            <td className="py-3 px-4 text-right">
+                              <div className="flex gap-2 justify-end">
+                                <Dialog open={isEditCafeOpen} onOpenChange={setIsEditCafeOpen}>
+                                  <DialogTrigger asChild>
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline"
+                                      onClick={() => setSelectedCafe(cafe)}
+                                    >
+                                      Edit
+                                    </Button>
+                                  </DialogTrigger>
+                                </Dialog>
+                                <Button 
+                                  size="sm" 
+                                  variant="destructive"
+                                  onClick={() => handleDeleteCafe(cafe.id)}
+                                >
+                                  Delete
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+            
+            {/* Content for the Bookings tab */}
+            <TabsContent value="bookings">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-medium">Manage Booking Requests</h2>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="py-3 px-4 text-left">ID</th>
+                      <th className="py-3 px-4 text-left">Name</th>
+                      <th className="py-3 px-4 text-left">Email</th>
+                      <th className="py-3 px-4 text-left">Type</th>
+                      <th className="py-3 px-4 text-left">Date</th>
+                      <th className="py-3 px-4 text-left">Status</th>
+                      <th className="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bookingRequests.map((request) => (
+                      <tr key={request.id} className="border-b hover:bg-gray-50">
+                        <td className="py-3 px-4">{request.id}</td>
+                        <td className="py-3 px-4">{request.name}</td>
+                        <td className="py-3 px-4">{request.email}</td>
+                        <td className="py-3 px-4">
+                          <span className={`inline-block px-2 py-1 rounded text-xs ${
+                            request.type === 'property' 
+                              ? 'bg-blue-100 text-blue-800' 
+                              : request.type === 'vehicle'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-amber-100 text-amber-800'
+                          }`}>
+                            {request.type}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">{request.date}</td>
+                        <td className="py-3 px-4">
+                          <Select 
+                            defaultValue={request.status}
+                            onValueChange={(value) => handleUpdateBookingStatus(request.id, value)}
+                          >
+                            <SelectTrigger className="w-[120px]">
+                              <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="pending">Pending</SelectItem>
+                              <SelectItem value="confirmed">Confirmed</SelectItem>
+                              <SelectItem value="cancelled">Cancelled</SelectItem>
+                              <SelectItem value="responded">Responded</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleRespondToBooking(request.id)}
+                          >
+                            <Send className="w-4 h-4 mr-1" />
+                            Respond
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </TabsContent>
+            
+            {/* Content for the Settings tab */}
+            <TabsContent value="settings">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-medium">Site Settings</h2>
+                <Button onClick={handleSiteSettingsUpdate}>
+                  Save Settings
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-lg font-medium mb-4">General Settings</h3>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="siteName">Site Name</Label>
+                      <Input 
+                        id="siteName"
+                        value={siteSettings.siteName}
+                        onChange={(e) => setSiteSettings({...siteSettings, siteName: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="contactEmail">Contact Email</Label>
+                      <Input 
+                        id="contactEmail"
+                        type="email"
+                        value={siteSettings.contactEmail}
+                        onChange={(e) => setSiteSettings({...siteSettings, contactEmail: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="contactPhone">Contact Phone</Label>
+                      <Input 
+                        id="contactPhone"
+                        value={siteSettings.contactPhone}
+                        onChange={(e) => setSiteSettings({...siteSettings, contactPhone: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="logoUrl">Logo URL</Label>
+                      <Input 
+                        id="logoUrl"
+                        value={siteSettings.logoUrl}
+                        onChange={(e) => setSiteSettings({...siteSettings, logoUrl: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="primaryColor">Primary Color</Label>
+                        <div className="flex gap-2">
+                          <div 
+                            className="w-10 h-10 rounded border"
+                            style={{ backgroundColor: siteSettings.primaryColor }}
+                          />
+                          <Input 
+                            id="primaryColor"
+                            value={siteSettings.primaryColor}
+                            onChange={(e) => setSiteSettings({...siteSettings, primaryColor: e.target.value})}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="secondaryColor">Secondary Color</Label>
+                        <div className="flex gap-2">
+                          <div 
+                            className="w-10 h-10 rounded border"
+                            style={{ backgroundColor: siteSettings.secondaryColor }}
+                          />
+                          <Input 
+                            id="secondaryColor"
+                            value={siteSettings.secondaryColor}
+                            onChange={(e) => setSiteSettings({...siteSettings, secondaryColor: e.target.value})}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-medium mb-4">Homepage Settings</h3>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="heroTitle">Hero Title</Label>
+                      <Input 
+                        id="heroTitle"
+                        value={siteSettings.heroTitle}
+                        onChange={(e) => setSiteSettings({...siteSettings, heroTitle: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="heroDescription">Hero Description</Label>
+                      <Textarea 
+                        id="heroDescription"
+                        value={siteSettings.heroDescription}
+                        onChange={(e) => setSiteSettings({...siteSettings, heroDescription: e.target.value})}
+                        className="min-h-[100px]"
+                      />
+                    </div>
+                    
+                    <div className="flex items-center space-x-2 pt-4">
+                      <Switch
+                        id="showCafeMap"
+                        checked={siteSettings.showCafeMap}
+                        onCheckedChange={(checked) => setSiteSettings({...siteSettings, showCafeMap: checked})}
+                      />
+                      <Label htmlFor="showCafeMap">Show Cafe Map on Homepage</Label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </main>
+      
+      <Footer />
+    </div>
+  );
+};
+
+export default AdminDashboard;
