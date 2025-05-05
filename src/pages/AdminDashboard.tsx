@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { PropertyForm, PropertyFormData } from "@/components/PropertyForm";
+import { PropertyForm, PropertyFormData, FormField } from "@/components/PropertyForm";
 import { DeleteConfirmation } from "@/components/DeleteConfirmation";
 import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
@@ -651,6 +651,27 @@ const AdminDashboard = () => {
     location: cafe.location || "",
     image: cafe.image
   }));
+
+  // Define form fields for different entity types
+  const vehicleFormFields: FormField[] = [
+    { name: "title", label: "Title", required: true },
+    { name: "type", label: "Type", required: true },
+    { name: "price", label: "Price", required: true, type: "number" },
+    { name: "year", label: "Year", required: true, type: "number", min: 1990, max: 2030 },
+    { name: "image", label: "Image URL", required: true },
+    { name: "seats", label: "Seats", type: "number", min: 1, max: 9 },
+    { name: "transmission", label: "Transmission" },
+    { name: "location", label: "Pickup Location" }
+  ];
+
+  const restaurantFormFields: FormField[] = [
+    { name: "name", label: "Name", required: true },
+    { name: "cuisine", label: "Cuisine", required: true },
+    { name: "priceRange", label: "Price Range", required: true },
+    { name: "location", label: "Location", required: true },
+    { name: "rating", label: "Rating", type: "number", min: 1, max: 5, step: 0.1 },
+    { name: "image", label: "Image URL", required: true }
+  ];
   
   return (
     <div className="flex flex-col min-h-screen">
@@ -828,52 +849,3 @@ const AdminDashboard = () => {
                                 <Button 
                                   size="sm" 
                                   variant="outline"
-                                  onClick={() => {
-                                    setCurrentProperty({
-                                      id: property.id,
-                                      title: property.title,
-                                      location: property.location,
-                                      type: property.type,
-                                      price: property.price.toString(),
-                                      image: property.image
-                                    });
-                                    setIsEditPropertyOpen(true);
-                                  }}
-                                >
-                                  Edit
-                                </Button>
-                              </DialogTrigger>
-                              <PropertyForm
-                                open={isEditPropertyOpen}
-                                onOpenChange={setIsEditPropertyOpen}
-                                onSubmit={handleEditProperty}
-                                property={currentProperty}
-                                title="Edit Property"
-                              />
-                            </Dialog>
-                            
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button 
-                                  size="sm" 
-                                  variant="destructive"
-                                  onClick={() => {
-                                    setCurrentProperty({
-                                      id: property.id,
-                                      title: property.title,
-                                      location: property.location,
-                                      type: property.type,
-                                      price: property.price.toString(),
-                                      image: property.image
-                                    });
-                                    setIsDeletePropertyOpen(true);
-                                  }}
-                                >
-                                  Delete
-                                </Button>
-                              </AlertDialogTrigger>
-                              <DeleteConfirmation
-                                open={isDeletePropertyOpen}
-                                onOpenChange={setIsDeletePropertyOpen}
-                                onConfirm={handleDeleteProperty}
-                                title="Delete
