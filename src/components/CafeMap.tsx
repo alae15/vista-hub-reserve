@@ -272,8 +272,9 @@ const CafeMap = ({
         </div>
       )}
 
-      {/* Add custom scrollbar styling */}
-      <style jsx>{`
+      {/* Custom scrollbar styling */}
+      <style>
+        {`
         .custom-scrollbar::-webkit-scrollbar {
           width: 4px;
         }
@@ -288,9 +289,11 @@ const CafeMap = ({
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: #0EA5E9;
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
 
 export default CafeMap;
+
