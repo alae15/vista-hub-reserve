@@ -28,8 +28,11 @@ const AdminLogin = () => {
           title: "Login successful",
           description: "Welcome to the admin dashboard",
         });
-        // Ensure we're navigating to the dashboard without any query parameters that might trigger dialogs
-        navigate("/admin/dashboard", { replace: true });
+        // Explicitly navigate to the dashboard with replace:true and state:null to avoid carrying over any state
+        navigate("/admin/dashboard", { 
+          replace: true,
+          state: { fresh: true }  // Use a clean state object
+        });
       } else {
         toast({
           title: "Login failed",

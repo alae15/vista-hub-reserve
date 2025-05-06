@@ -102,6 +102,11 @@ export function PropertyForm({
     { name: "description", label: "Description", type: "textarea" },
   ];
 
+  // Only render the dialog when open is true
+  if (!open) {
+    return null;
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
