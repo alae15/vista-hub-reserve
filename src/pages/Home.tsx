@@ -5,10 +5,9 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
 import { useData } from "@/contexts/DataContext";
-import CafeMap, { CafeMapCafe } from "@/components/CafeMap";
 
 const Home = () => {
-  const { properties, cafes, mapSettings, siteSettings } = useData();
+  const { properties, siteSettings } = useData();
   const [featuredProperties, setFeaturedProperties] = useState([]);
 
   useEffect(() => {
@@ -16,18 +15,6 @@ const Home = () => {
     const featured = properties.filter(property => property.featured);
     setFeaturedProperties(featured.length > 0 ? featured : properties.slice(0, 3));
   }, [properties]);
-
-  // Map cafes to CafeMapCafe type ensuring all required fields exist
-  const mapCafes: CafeMapCafe[] = cafes.map(cafe => ({
-    id: typeof cafe.id === 'number' ? cafe.id : Math.floor(Math.random() * 10000),
-    name: cafe.name || "Unnamed Cafe",
-    lat: cafe.lat || 35.616367,
-    lng: cafe.lng || -5.272562,
-    rating: cafe.rating || 4.0,
-    description: cafe.description || "",
-    location: cafe.location || "Martil",
-    image: cafe.image || ""
-  }));
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -103,31 +90,6 @@ const Home = () => {
           </div>
         </section>
         
-        {/* Cafe Map Section with improved styling */}
-        {(!siteSettings || siteSettings.showCafeMap !== false) && (
-          <section className="bg-martil-light py-16">
-            <div className="container mx-auto px-4">
-              <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl md:text-3xl font-bold text-martil-navy border-l-4 border-martil-blue pl-4">
-                  Best Cafes in Martil
-                </h2>
-              </div>
-              
-              <div className="bg-white p-2 rounded-xl shadow-lg overflow-hidden">
-                <CafeMap 
-                  height="500px"
-                  mapStyle={mapSettings?.mapStyle || "streets"}
-                  zoomLevel={mapSettings?.zoomLevel || 14}
-                  showMarkers={mapSettings?.showMarkers !== false}
-                  centerLat={mapSettings?.centerLat || 35.616367}
-                  centerLng={mapSettings?.centerLng || -5.272562}
-                  cafes={mapCafes.length > 0 ? mapCafes : undefined}
-                />
-              </div>
-            </div>
-          </section>
-        )}
-
         {/* Additional information section */}
         <section className="container mx-auto px-4 py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
