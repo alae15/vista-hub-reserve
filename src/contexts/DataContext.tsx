@@ -1,4 +1,3 @@
-
 import { createContext, useState, useContext, useEffect, ReactNode } from "react";
 
 // Define your data types
@@ -103,6 +102,8 @@ interface DataContextType {
   updateSiteSettings: (settings: SiteSettings) => void;
   updateBookingRequests: (requests: BookingRequest[]) => void;
   addBookingRequest: (request: Omit<BookingRequest, 'id'>) => void;
+  updateProperty: (property: Property) => void;
+  deleteProperty: (id: number) => void;
 }
 
 // Initialize with default data
@@ -349,6 +350,27 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('bookingRequests', JSON.stringify(updatedRequests));
   };
 
+  // Add new update and delete property functions
+  const updateProperty = (updatedProperty: Property) => {
+    const updatedProperties = properties.map(prop => 
+      prop.id === updatedProperty.id ? updatedProperty : prop
+    );
+    
+    // If the property doesn't exist, add it
+    if (!properties.find(p => p.id === updatedProperty.id)) {
+      updatedProperties.push(updatedProperty);
+    }
+    
+    setProperties(updatedProperties);
+    localStorage.setItem('properties', JSON.stringify(updatedProperties));
+  };
+  
+  const deleteProperty = (id: number) => {
+    const filteredProperties = properties.filter(property => property.id !== id);
+    setProperties(filteredProperties);
+    localStorage.setItem('properties', JSON.stringify(filteredProperties));
+  };
+
   const value = {
     properties,
     vehicles,
@@ -364,7 +386,9 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     updateMapSettings,
     updateSiteSettings,
     updateBookingRequests,
-    addBookingRequest
+    addBookingRequest,
+    updateProperty,
+    deleteProperty
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

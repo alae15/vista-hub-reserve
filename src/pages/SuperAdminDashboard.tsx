@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -165,7 +164,7 @@ const SuperAdminDashboard = () => {
                     <div className="h-40">
                       <img 
                         src={vehicle.image} 
-                        alt={vehicle.name} 
+                        alt={vehicle.title} 
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           e.currentTarget.src = "/placeholder.svg";
@@ -173,7 +172,7 @@ const SuperAdminDashboard = () => {
                       />
                     </div>
                     <CardHeader className="p-4 pb-2">
-                      <CardTitle className="text-xl">{vehicle.name}</CardTitle>
+                      <CardTitle className="text-xl">{vehicle.title}</CardTitle>
                       <CardDescription>{vehicle.type}</CardDescription>
                     </CardHeader>
                     <CardContent className="p-4 pt-0">
