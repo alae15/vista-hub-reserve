@@ -29,8 +29,7 @@ const AdminLogin = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        // Use replace: true to replace the login page in history
-        // Don't pass any state that might trigger unwanted effects
+        // Navigate to dashboard without any state to avoid triggering modals
         navigate("/admin/dashboard", { replace: true });
       } else {
         toast({
@@ -101,3 +100,4 @@ const AdminLogin = () => {
 };
 
 export default AdminLogin;
+
