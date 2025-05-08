@@ -27,7 +27,7 @@ export type PropertyFormData = {
   title: string;
   location: string;
   type: string;
-  price: string;
+  price: string; // Keep as string for form handling
   image: string;
   description?: string;
   beds?: number;
@@ -66,23 +66,31 @@ export function PropertyForm({
   fields 
 }: PropertyFormProps) {
   const { toast } = useToast();
+  
+  // Convert price to string for the form if it's a number
+  const initialValues = property ? {
+    ...property,
+    price: property.price?.toString() || "" // Convert number to string for the form
+  } : {
+    title: "",
+    location: "",
+    type: "",
+    price: "",
+    image: "",
+    description: "",
+    beds: 0,
+    baths: 0,
+    guests: 0,
+    amenities: [],
+    featured: false
+  };
+  
   const form = useForm<PropertyFormData | any>({
-    defaultValues: property || {
-      title: "",
-      location: "",
-      type: "",
-      price: "",
-      image: "",
-      description: "",
-      beds: 0,
-      baths: 0,
-      guests: 0,
-      amenities: [],
-      featured: false
-    },
+    defaultValues: initialValues,
   });
 
   const handleSubmit = (data: PropertyFormData | any) => {
+    // Let the parent component handle number conversion
     onSubmit(data);
     form.reset();
     onOpenChange(false);

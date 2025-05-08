@@ -46,16 +46,24 @@ const SuperAdminDashboard = () => {
   // Handle form submission
   const handleFormSubmit = (data: PropertyFormData) => {
     if (modalType === "edit" && selectedItem) {
-      // Update existing item
-      updateProperty({ ...data, id: selectedItem.id });
+      // Update existing item - convert price to number
+      updateProperty({ 
+        ...data, 
+        id: selectedItem.id,
+        price: Number(data.price) // Convert price to number
+      });
       toast({
         title: "Success",
         description: `${activeTab.slice(0, -1)} updated successfully`,
       });
     } else {
-      // Create new item
+      // Create new item - convert price to number
       const newId = Math.max(...properties.map(p => p.id)) + 1;
-      updateProperty({ ...data, id: newId });
+      updateProperty({ 
+        ...data, 
+        id: newId,
+        price: Number(data.price) // Convert price to number
+      });
       toast({
         title: "Success",
         description: `New ${activeTab.slice(0, -1)} added successfully`,
