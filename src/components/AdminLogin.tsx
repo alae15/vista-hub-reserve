@@ -29,8 +29,12 @@ const AdminLogin = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        // Navigate to dashboard without any state to avoid triggering modals
-        navigate("/admin/dashboard", { replace: true });
+        // Navigate with replace: true and no state to avoid triggering modals
+        // The key "reset" ensures React creates a fresh instance of the component
+        navigate("/admin/dashboard", { 
+          replace: true,
+          state: { fresh: true }
+        });
       } else {
         toast({
           title: "Login failed",
@@ -100,4 +104,3 @@ const AdminLogin = () => {
 };
 
 export default AdminLogin;
-

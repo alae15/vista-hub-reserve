@@ -102,7 +102,7 @@ export function PropertyForm({
     { name: "description", label: "Description", type: "textarea" },
   ];
 
-  // Only render the dialog when open is true
+  // Return null when not open to prevent any rendering
   if (!open) {
     return null;
   }
@@ -157,4 +157,3 @@ export function PropertyForm({
     </Dialog>
   );
 }
-
