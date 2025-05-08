@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -30,7 +29,6 @@ const AdminLogin = () => {
         });
         
         // Navigate with replace: true and no state to avoid triggering modals
-        // The key "reset" ensures React creates a fresh instance of the component
         navigate("/admin/dashboard", { 
           replace: true,
           state: { fresh: true }

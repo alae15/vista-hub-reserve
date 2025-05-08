@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -29,7 +28,6 @@ const SuperAdminLogin = () => {
           description: "Welcome to the super admin dashboard",
         });
         
-        // Navigate with replace: true to avoid triggering any modals
         navigate("/super-admin/dashboard", { 
           replace: true,
           state: { fresh: true } 
