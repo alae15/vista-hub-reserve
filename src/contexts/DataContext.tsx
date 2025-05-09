@@ -31,6 +31,8 @@ export interface Vehicle {
   features?: string[];
   panoramaImages?: string[];
   featured?: boolean;
+  lat?: number; // Added lat property
+  lng?: number; // Added lng property
 }
 
 export interface Restaurant {
@@ -44,6 +46,8 @@ export interface Restaurant {
   priceRange: string;
   menu?: { category: string; items: { name: string; price: number; description: string }[] }[];
   featured?: boolean;
+  lat?: number; // Added lat property
+  lng?: number; // Added lng property
 }
 
 export interface Cafe {
@@ -167,6 +171,8 @@ const defaultVehicles: Vehicle[] = [
     seats: 5,
     description: "Fuel-efficient compact car, perfect for city driving and short trips.",
     featured: false,
+    lat: 35.617367, // Added lat coordinate
+    lng: -5.271562  // Added lng coordinate
   },
   {
     id: 2,
@@ -179,6 +185,8 @@ const defaultVehicles: Vehicle[] = [
     seats: 7,
     description: "Spacious and comfortable SUV for family trips and exploring the region.",
     featured: false,
+    lat: 35.615367, // Added lat coordinate
+    lng: -5.274562  // Added lng coordinate
   },
   {
     id: 3,
@@ -191,6 +199,8 @@ const defaultVehicles: Vehicle[] = [
     seats: 2,
     description: "Fast and agile motorcycle for exciting rides along the coastal roads.",
     featured: false,
+    lat: 35.618367, // Added lat coordinate
+    lng: -5.273562  // Added lng coordinate
   }
 ];
 
@@ -205,6 +215,8 @@ const defaultRestaurants: Restaurant[] = [
     priceRange: "$$",
     description: "Authentic Moroccan cuisine with traditional decor and live music on weekends.",
     featured: false,
+    lat: 35.616367, // Added lat coordinate
+    lng: -5.270562  // Added lng coordinate
   },
   {
     id: 2,
@@ -216,6 +228,8 @@ const defaultRestaurants: Restaurant[] = [
     priceRange: "$$$",
     description: "Fresh seafood and Mediterranean specialties with a beautiful view of the sea.",
     featured: false,
+    lat: 35.614567, // Added lat coordinate
+    lng: -5.275562  // Added lng coordinate
   },
   {
     id: 3,
@@ -227,6 +241,8 @@ const defaultRestaurants: Restaurant[] = [
     priceRange: "$$",
     description: "Specializing in locally caught seafood prepared with both traditional and modern techniques.",
     featured: false,
+    lat: 35.613367, // Added lat coordinate
+    lng: -5.272562  // Added lng coordinate
   }
 ];
 

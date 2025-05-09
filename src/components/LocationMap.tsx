@@ -1,4 +1,3 @@
-
 import { useRef, useEffect, useState } from "react";
 import { MapPin, Map, Navigation, MapPinOff } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
