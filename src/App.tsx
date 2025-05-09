@@ -16,6 +16,8 @@ import RestaurantDetail from "./pages/RestaurantDetail";
 import BookNow from "./pages/BookNow";
 import NotFound from "./pages/NotFound";
 import MapExplorer from "./pages/MapExplorer";
+import SuperAdmin from "./pages/SuperAdmin";
+import SuperAdminDashboard from "./pages/SuperAdminDashboard";
 
 // Create a new client with configuration to prevent caching issues
 const queryClient = new QueryClient({
@@ -46,6 +48,8 @@ const App = () => (
               <Route path="/restaurant/:id" element={<RestaurantDetail />} />
               <Route path="/book-now" element={<BookNow />} />
               <Route path="/map" element={<MapExplorer />} />
+              <Route path="/super-admin" element={<SuperAdmin />} />
+              <Route path="/super-admin/dashboard" element={<SuperAdminDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
