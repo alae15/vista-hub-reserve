@@ -5,6 +5,9 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
 import { useData } from "@/contexts/DataContext";
+import { Button } from "@/components/ui/button";
+import { MapPin } from "lucide-react";
+import LocationMap from "@/components/LocationMap";
 
 const Home = () => {
   const { properties, siteSettings } = useData();
@@ -41,10 +44,11 @@ const Home = () => {
                   Browse Properties
                 </Link>
                 <Link
-                  to="/book-now"
+                  to="/map"
                   className="inline-flex h-12 items-center justify-center rounded-md border border-white bg-transparent px-8 text-sm font-medium text-white shadow-md transition-all hover:bg-white/20 hover:scale-105 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
                 >
-                  Book Now
+                  <MapPin className="mr-2 h-5 w-5" />
+                  Explore Map
                 </Link>
               </div>
             </div>
@@ -89,60 +93,28 @@ const Home = () => {
             ))}
           </div>
         </section>
-        
-        {/* Additional information section */}
-        <section className="container mx-auto px-4 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="rounded-xl overflow-hidden border border-gray-100 shadow-md hover:shadow-lg transition-shadow">
-              <div className="bg-gradient-to-r from-martil-blue to-blue-400 p-6 text-white">
-                <h3 className="text-xl font-semibold mb-2">Why Choose MartiStay?</h3>
-                <p className="text-white/80">We offer the best selection of properties, vehicles and restaurants in Martil.</p>
-              </div>
-              <div className="p-6">
-                <ul className="space-y-2">
-                  <li className="flex items-start">
-                    <svg className="h-5 w-5 text-martil-blue mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Handpicked properties with quality assurance</span>
-                  </li>
-                  <li className="flex items-start">
-                    <svg className="h-5 w-5 text-martil-blue mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Local expertise and personalized recommendations</span>
-                  </li>
-                  <li className="flex items-start">
-                    <svg className="h-5 w-5 text-martil-blue mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Secure bookings and 24/7 customer support</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            
-            <div className="rounded-xl overflow-hidden border border-gray-100 shadow-md hover:shadow-lg transition-shadow">
-              <div className="bg-gradient-to-r from-martil-orange to-orange-400 p-6 text-white">
-                <h3 className="text-xl font-semibold mb-2">Discover Martil</h3>
-                <p className="text-white/80">Experience the beauty and charm of this Mediterranean gem.</p>
-              </div>
-              <div className="p-6">
-                <p className="text-gray-600 mb-4">
-                  Nestled on Morocco's Mediterranean coast, Martil offers beautiful beaches, 
-                  delicious cuisine, and a perfect blend of traditional charm and modern comfort.
-                </p>
-                <Link 
-                  to="/book-now" 
-                  className="inline-flex items-center justify-center rounded-md bg-martil-orange px-4 py-2 text-sm font-medium text-white shadow transition-colors hover:bg-orange-500"
-                >
-                  Plan Your Trip
-                  <svg className="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
+
+        {/* Interactive Map Section */}
+        <section className="container mx-auto px-4 py-12 bg-gray-50 rounded-lg">
+          <div className="mb-8 text-center">
+            <h2 className="text-2xl md:text-3xl font-bold text-martil-navy mb-4">
+              Explore Martil's Finest Locations
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Discover our available vehicles and top restaurants across Martil. Use the interactive map to find the perfect spots for your stay.
+            </p>
+            <div className="mt-4">
+              <Button asChild variant="outline">
+                <Link to="/map" className="flex items-center">
+                  <MapPin className="mr-2 h-5 w-5" />
+                  Open Full Map Explorer
                 </Link>
-              </div>
+              </Button>
             </div>
+          </div>
+          
+          <div className="h-[500px] overflow-hidden rounded-xl shadow-lg">
+            <LocationMap previewMode={true} />
           </div>
         </section>
       </main>

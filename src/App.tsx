@@ -13,12 +13,9 @@ import Vehicles from "./pages/Vehicles";
 import VehicleDetail from "./pages/VehicleDetail";
 import Restaurants from "./pages/Restaurants";
 import RestaurantDetail from "./pages/RestaurantDetail";
-import Admin from "./pages/Admin";
-import AdminDashboard from "./pages/AdminDashboard";
-import SuperAdmin from "./pages/SuperAdmin";
-import SuperAdminDashboard from "./pages/SuperAdminDashboard";
 import BookNow from "./pages/BookNow";
 import NotFound from "./pages/NotFound";
+import MapExplorer from "./pages/MapExplorer";
 
 // Create a new client with configuration to prevent caching issues
 const queryClient = new QueryClient({
@@ -47,11 +44,8 @@ const App = () => (
               <Route path="/vehicle/:id" element={<VehicleDetail />} />
               <Route path="/restaurants" element={<Restaurants />} />
               <Route path="/restaurant/:id" element={<RestaurantDetail />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/super-admin" element={<SuperAdmin />} />
-              <Route path="/super-admin/dashboard" element={<SuperAdminDashboard />} />
               <Route path="/book-now" element={<BookNow />} />
+              <Route path="/map" element={<MapExplorer />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
