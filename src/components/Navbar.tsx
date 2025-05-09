@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Menu, X, Map } from "lucide-react";
+import { Search, Menu, X, Map, Shield } from "lucide-react";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -45,6 +45,10 @@ const Navbar = () => {
           <Link to="/book-now" className="pointer-events-auto">
             <Button>Book Now</Button>
           </Link>
+          <Link to="/super-admin" className="text-sm font-medium hover:text-primary transition-colors pointer-events-auto flex items-center">
+            <Shield className="h-4 w-4 mr-1" />
+            Admin
+          </Link>
         </nav>
 
         <div className="md:hidden flex items-center pointer-events-auto">
@@ -80,6 +84,10 @@ const Navbar = () => {
             </Link>
             <Link to="/book-now" onClick={toggleMenu} className="pointer-events-auto">
               <Button className="w-full pointer-events-auto">Book Now</Button>
+            </Link>
+            <Link to="/super-admin" className="text-sm font-medium p-2 hover:bg-muted rounded-md pointer-events-auto flex items-center" onClick={toggleMenu}>
+              <Shield className="h-4 w-4 mr-2" />
+              Admin Access
             </Link>
           </nav>
         </div>
