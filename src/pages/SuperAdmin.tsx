@@ -10,13 +10,13 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const SuperAdmin: React.FC = () => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   // Super admin credentials (in a real app, these would be stored securely and not in the frontend)
-  const superAdminEmail = "admin@martistay.com";
+  const superAdminUsername = "admin";
   const superAdminPassword = "admin123";
 
   const handleLogin = (e: React.FormEvent) => {
@@ -25,7 +25,7 @@ const SuperAdmin: React.FC = () => {
     
     // Simple authentication logic
     setTimeout(() => {
-      if (email === superAdminEmail && password === superAdminPassword) {
+      if (username === superAdminUsername && password === superAdminPassword) {
         localStorage.setItem("isSuperAdmin", "true");
         toast.success("Login successful");
         navigate("/super-admin/dashboard");
@@ -48,13 +48,13 @@ const SuperAdmin: React.FC = () => {
           <form onSubmit={handleLogin}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="username">Username</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="admin@martistay.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="username"
+                  type="text"
+                  placeholder="admin"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
                 />
               </div>

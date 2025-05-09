@@ -4,19 +4,29 @@ import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { PropertyForm, PropertyFormData } from "@/components/PropertyForm";
 import { useData } from "@/contexts/DataContext";
 import { toast } from "sonner";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Plus } from "lucide-react";
 
 const SuperAdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [addPropertyOpen, setAddPropertyOpen] = useState(false);
+  const [editProperty, setEditProperty] = useState<any>(null);
+  
   const { 
-    properties, updateProperties,
+    properties, updateProperties, updateProperty, deleteProperty,
     vehicles, updateVehicles,
     restaurants, updateRestaurants,
-    cafes, updateCafes,
-    mapSettings, updateMapSettings,
-    siteSettings, updateSiteSettings,
     bookingRequests, updateBookingRequests
   } = useData();
 
@@ -54,8 +64,7 @@ const SuperAdminDashboard: React.FC = () => {
   };
 
   const handleDeleteProperty = (id: number) => {
-    const updatedProperties = properties.filter(property => property.id !== id);
-    updateProperties(updatedProperties);
+    deleteProperty(id);
     toast.success("Property deleted");
   };
 
@@ -77,6 +86,31 @@ const SuperAdminDashboard: React.FC = () => {
     );
     updateProperties(updatedProperties);
     toast.success("Property featured status updated");
+  };
+
+  const handleAddProperty = (data: PropertyFormData) => {
+    const newProperty = {
+      ...data,
+      id: properties.length > 0 ? Math.max(...properties.map(p => p.id)) + 1 : 1,
+      price: parseFloat(data.price as string),
+      rating: data.rating || 4.5,
+      featured: data.featured || false,
+    };
+    
+    updateProperty(newProperty);
+    toast.success("Property added successfully");
+  };
+  
+  const handleEditProperty = (data: PropertyFormData) => {
+    const updatedProperty = {
+      ...data,
+      price: parseFloat(data.price as string),
+      id: editProperty.id
+    };
+    
+    updateProperty(updatedProperty);
+    setEditProperty(null);
+    toast.success("Property updated successfully");
   };
 
   if (!isAuthorized) {
@@ -105,48 +139,69 @@ const SuperAdminDashboard: React.FC = () => {
             {bookingRequests.length === 0 ? (
               <p>No booking requests found.</p>
             ) : (
-              <div className="grid gap-4">
-                {bookingRequests.map((request) => (
-                  <Card key={request.id}>
-                    <CardHeader>
-                      <CardTitle>{request.name}</CardTitle>
-                      <CardDescription>Request for {request.type} on {request.date}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p>Email: {request.email}</p>
-                      <p className={`mt-2 font-semibold ${
-                        request.status === "confirmed" ? "text-green-600" : 
-                        request.status === "rejected" ? "text-red-600" : "text-yellow-600"
-                      }`}>
-                        Status: {request.status}
-                      </p>
-                    </CardContent>
-                    <CardFooter className="flex justify-end space-x-2">
-                      {request.status === "pending" && (
-                        <>
-                          <Button 
-                            variant="outline" 
-                            onClick={() => handleRejectBooking(request.id)}
-                          >
-                            Reject
-                          </Button>
-                          <Button 
-                            onClick={() => handleApproveBooking(request.id)}
-                          >
-                            Approve
-                          </Button>
-                        </>
-                      )}
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {bookingRequests.map((request) => (
+                    <TableRow key={request.id}>
+                      <TableCell>{request.name}</TableCell>
+                      <TableCell>{request.email}</TableCell>
+                      <TableCell>{request.type}</TableCell>
+                      <TableCell>{request.date}</TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                          request.status === "confirmed" ? "bg-green-100 text-green-800" : 
+                          request.status === "rejected" ? "bg-red-100 text-red-800" : 
+                          "bg-yellow-100 text-yellow-800"
+                        }`}>
+                          {request.status}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {request.status === "pending" && (
+                          <div className="space-x-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleRejectBooking(request.id)}
+                            >
+                              Reject
+                            </Button>
+                            <Button 
+                              size="sm"
+                              onClick={() => handleApproveBooking(request.id)}
+                            >
+                              Approve
+                            </Button>
+                          </div>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             )}
           </TabsContent>
           
           {/* Properties Tab */}
           <TabsContent value="properties" className="space-y-4">
-            <h2 className="text-2xl font-bold">Manage Properties</h2>
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Manage Properties</h2>
+              <Button onClick={() => setAddPropertyOpen(true)}>
+                <Plus className="mr-1" />
+                Add Property
+              </Button>
+            </div>
+            
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {properties.map((property) => (
                 <Card key={property.id}>
@@ -171,16 +226,24 @@ const SuperAdminDashboard: React.FC = () => {
                   <CardFooter className="flex justify-between">
                     <Button 
                       variant="outline" 
-                      onClick={() => handleFeatureProperty(property.id)}
+                      onClick={() => setEditProperty(property)}
                     >
-                      {property.featured ? "Unfeature" : "Feature"}
+                      Edit
                     </Button>
-                    <Button 
-                      variant="destructive" 
-                      onClick={() => handleDeleteProperty(property.id)}
-                    >
-                      Delete
-                    </Button>
+                    <div className="space-x-2">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => handleFeatureProperty(property.id)}
+                      >
+                        {property.featured ? "Unfeature" : "Feature"}
+                      </Button>
+                      <Button 
+                        variant="destructive" 
+                        onClick={() => handleDeleteProperty(property.id)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
                   </CardFooter>
                 </Card>
               ))}
@@ -257,6 +320,25 @@ const SuperAdminDashboard: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
+      
+      {/* Add Property Form */}
+      <PropertyForm 
+        open={addPropertyOpen}
+        onOpenChange={setAddPropertyOpen}
+        onSubmit={handleAddProperty}
+        title="Add New Property"
+      />
+      
+      {/* Edit Property Form */}
+      {editProperty && (
+        <PropertyForm
+          open={!!editProperty}
+          onOpenChange={() => setEditProperty(null)}
+          onSubmit={handleEditProperty}
+          property={editProperty}
+          title="Edit Property"
+        />
+      )}
     </div>
   );
 };
